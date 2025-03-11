@@ -39,20 +39,20 @@ int main() {
 			default:
 				break;
 			}
-
-			window.clear();
-
-			sf::RectangleShape background;
-			background.setSize(sf::Vector2f(windowSize));
-			background.setPosition(0.0f, 0.0f);
-
-			backgroundShader.setUniform("spacing", spacing);
-			backgroundShader.setUniform("thickness", thickness);
-
-			window.draw(background, &backgroundShader);
-
-			window.display();
 		}
+
+		window.clear();
+
+		sf::RectangleShape background;
+		background.setSize(sf::Vector2f(windowSize));
+		background.setPosition(0.0f, 0.0f);
+
+		backgroundShader.setUniform("spacing", spacing);
+		backgroundShader.setUniform("thickness", thickness);
+
+		window.draw(background, &backgroundShader);
+
+		window.display();
 	}
 
 	return EXIT_SUCCESS;
