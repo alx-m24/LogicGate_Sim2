@@ -6,6 +6,8 @@ Simulation::Simulation(std::string dirPath)
 
 	bgShader.setUniform("spacing", spacing);
 	bgShader.setUniform("thickness", thickness);
+
+	clock.restart();
 }
 
 void Simulation::update(sf::RenderWindow& window)
@@ -25,7 +27,7 @@ void Simulation::draw(sf::RenderWindow& window)
 	background.setPosition(0.0f, 0.0f);
 
 	bgShader.setUniform("resolution", windowSize);
-	bgShader.setUniform("resolution", windowSize);
+	bgShader.setUniform("time", clock.getElapsedTime().asSeconds());
 	bgShader.setUniform("node.state", test.state);
 	bgShader.setUniform("node.position", test.position);
 

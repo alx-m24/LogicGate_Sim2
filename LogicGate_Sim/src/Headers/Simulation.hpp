@@ -18,6 +18,7 @@ public:
 	Simulation(std::string dirPath);
 
 private:
+	sf::Clock clock;
 	sf::Shader bgShader;
 	const float spacing = 50.0f;
 	const int thickness = 1;

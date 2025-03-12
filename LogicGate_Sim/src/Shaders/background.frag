@@ -2,6 +2,7 @@
 
 out vec4 FragColor;
 uniform float spacing;
+uniform float time;
 uniform int thickness;
 uniform vec2 resolution;
 
@@ -20,17 +21,25 @@ void main() {
     float epsilon = 0.5 + thickness;
     
     if (modResult.x < epsilon && modResult.y < epsilon) {
-        FragColor = vec4(1.0); // White
+        FragColor = vec4(1.0); // White grid
         return;
     }
 
     float distFromCenter = length(2.0 * uv - 1.0);
 
-    FragColor = vec4(vec3(34.0, 31.0, 27.0) / 255.0, 1.0);
+    // Base background color
+    FragColor = vec4(vec3(64.0, 61.0, 57.0) / 255.0, 1.0);
     FragColor = vec4(mix(FragColor, FragColor / 1.5, distFromCenter).xyz, 1.0);
 
-    vec2 flippedNodePos = vec2(node.position.x, resolution.y - node.position.y);
-    float distFromNode = distance(position, flippedNodePos);
-    float intensity = (300.0 * int(node.state)) / max(distFromNode * distFromNode, 0.001);
-    FragColor = FragColor + vec4((vec3(219.0, 22.0, 47.0) / 255.0) * intensity, 1.0);
+    // Glow Effect
+    if (node.state) {
+        vec2 flippedNodePos = vec2(node.position.x, resolution.y - node.position.y);
+        float distFromNode = max(distance(position, flippedNodePos), 0.001); // Avoid division by zero
+
+        float pulse = sin(time * 2.0) / 7.0 + (1.0 - 1.0 / 7.0);
+        float intensity = smoothstep(0.0, 1.0, pulse * 350.0 / (distFromNode * distFromNode)); // Smoothed glow
+
+        vec3 glowColor = vec3(219.0, 22.0, 47.0) / 255.0 * intensity;
+        FragColor.rgb = min(FragColor.rgb + glowColor, vec3(1.0)); // Prevent overexposure
+    }
 }
