@@ -8,14 +8,45 @@ Simulation::Simulation(std::string dirPath)
 	bgShader.setUniform("thickness", thickness);
 
 	clock.restart();
+	
+	// Seed the random number generator
+	std::srand(static_cast<unsigned>(std::time(0)));
 }
 
 void Simulation::update(sf::RenderWindow& window)
 {
-	if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
-		test.position = sf::Vector2f(sf::Mouse::getPosition(window));
+#pragma region KeyBinds
+	if (ADD_NODE && !addedNodeLastFrame) {
+		addedNodeLastFrame = true;
+		nodes.emplace_back(Node());
+		nodes.back().state = false;
+		nodes.back().position = (sf::Vector2f(window.getSize()) / 2.0f) + getRandomOffset(-50.0f, 50.0f);
 	}
-	if (sf::Mouse::isButtonPressed(sf::Mouse::Right)) test.state = !test.state;
+	else {
+		addedNodeLastFrame = ADD_NODE;
+	}
+#pragma endregion
+
+#pragma region Mouse
+	sf::Vector2f mousePos = sf::Vector2f(sf::Mouse::getPosition(window));
+
+	if (LEFTMOUSE && !lastLeft) {
+		for (int i = 0; i < nodes.size() && !movingObject; ++i) {
+			if (nodes[i].contains(mousePos)) {
+				movingObject = true;
+				movedNodeIdx = i;
+			}
+		}
+	}
+	if (lastLeft && !LEFTMOUSE) {
+		movingObject = false;
+		movedNodeIdx = -1;
+	}
+
+	if (movedNodeIdx != -1) nodes[movedNodeIdx].position = mousePos;
+
+	lastLeft = LEFTMOUSE;
+#pragma endregion	
 }
 
 void Simulation::draw(sf::RenderWindow& window)
@@ -28,21 +59,17 @@ void Simulation::draw(sf::RenderWindow& window)
 
 	bgShader.setUniform("resolution", windowSize);
 	bgShader.setUniform("time", clock.getElapsedTime().asSeconds());
-	bgShader.setUniform("node.state", test.state);
-	bgShader.setUniform("node.position", test.position);
+
+	int nodeNum = nodes.size();
+	bgShader.setUniform("nodeNum", nodeNum);
+	for (int i = 0; i < nodeNum; ++i) {
+		std::string name = "nodes[" + std::to_string(i) + "].";
+		bgShader.setUniform(name + "state", nodes[i].state);
+		bgShader.setUniform(name + "position", nodes[i].position);
+	}
 
 	window.draw(background, &bgShader);
-	test.draw(window);
+
+	for (Node& node : nodes) node.draw(window);
 }
 
-void Node::draw(sf::RenderWindow& window)
-{
-	sf::CircleShape circle(20.0f);
-	circle.setFillColor(state ? sf::Color(209, 0, 0) : sf::Color::White);
-	circle.setOutlineThickness(3.0f);
-	circle.setOutlineColor(sf::Color::Black);
-	circle.setOrigin(circle.getRadius(), circle.getRadius());
-	circle.setPosition(position);
-
-	window.draw(circle);
-}

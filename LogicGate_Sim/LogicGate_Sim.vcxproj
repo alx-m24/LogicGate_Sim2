@@ -128,6 +128,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Headers\Node.cpp" />
     <ClCompile Include="src\Headers\Simulation.cpp" />
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>
@@ -138,6 +139,9 @@
     <Image Include="..\..\..\..\Downloads\LogitGate-ColorPalette.png" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Headers\KeyBinds\KeyBinds.hpp" />
+    <ClInclude Include="src\Headers\Node.hpp" />
+    <ClInclude Include="src\Headers\Object.hpp" />
     <ClInclude Include="src\Headers\Simulation.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

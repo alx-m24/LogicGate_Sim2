@@ -4,6 +4,7 @@
 #include "Headers/Simulation.hpp"
 
 namespace fs = std::filesystem;
+std::map<sf::Keyboard::Key, bool> keys = std::map<sf::Keyboard::Key, bool>();
 
 int main() {
 #pragma region Initialize
@@ -29,6 +30,12 @@ int main() {
 			{
 			case sf::Event::Closed:
 				window.close();
+				break;
+			case sf::Event::KeyPressed:
+				keys[event.key.code] = true;
+				break;
+			case sf::Event::KeyReleased:
+				keys[event.key.code] = false;
 				break;
 			default:
 				break;
