@@ -22,13 +22,15 @@ private:
 	sf::Shader bgShader;
 
 private:
-	const float spacing = 50.0f;
+	const float gridSize = 10.0f;
 	const int thickness = 1;
+	float spacing = 50.0f;
 
 private:
 	bool addedNodeLastFrame = false;
 	bool movingObject = false;
 	bool lastLeft = false;
+	bool lastRight = false;
 	int movedNodeIdx = -1;
 
 private:

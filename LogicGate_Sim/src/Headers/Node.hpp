@@ -9,6 +9,7 @@ private:
 
 public:
 	bool state;
+	bool selected = false;
 	sf::Vector2f position;
 
 public:

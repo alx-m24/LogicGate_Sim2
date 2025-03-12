@@ -5,5 +5,7 @@
 extern std::map<sf::Keyboard::Key, bool> keys;
 
 #define CTRL (keys[sf::Keyboard::LControl] || keys[sf::Keyboard::RControl])
+#define SHIFT (keys[sf::Keyboard::LShift] || keys[sf::Keyboard::RShift])
 #define ADD_NODE (keys[sf::Keyboard::N] && CTRL)
 #define LEFTMOUSE (sf::Mouse::isButtonPressed(sf::Mouse::Left))
+#define RIGHTMOUSE (sf::Mouse::isButtonPressed(sf::Mouse::Right))

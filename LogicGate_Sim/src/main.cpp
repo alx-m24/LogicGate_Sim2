@@ -31,6 +31,8 @@ int main() {
 			case sf::Event::Closed:
 				window.close();
 				break;
+			case sf::Event::Resized:
+				window.setView(sf::View(sf::FloatRect(0.0f, 0.0f, window.getSize().x, window.getSize().y)));
 			case sf::Event::KeyPressed:
 				keys[event.key.code] = true;
 				break;

@@ -3,8 +3,6 @@
 Simulation::Simulation(std::string dirPath)
 {
 	bgShader.loadFromFile(dirPath + "\\Shaders\\background.frag", sf::Shader::Fragment);
-
-	bgShader.setUniform("spacing", spacing);
 	bgShader.setUniform("thickness", thickness);
 
 	clock.restart();
@@ -15,6 +13,11 @@ Simulation::Simulation(std::string dirPath)
 
 void Simulation::update(sf::RenderWindow& window)
 {
+#pragma region Spacing
+	spacing = std::min(window.getSize().x, window.getSize().y) / gridSize;
+	bgShader.setUniform("spacing", spacing);
+#pragma endregion
+
 #pragma region KeyBinds
 	if (ADD_NODE && !addedNodeLastFrame) {
 		addedNodeLastFrame = true;
@@ -28,8 +31,12 @@ void Simulation::update(sf::RenderWindow& window)
 #pragma endregion
 
 #pragma region Mouse
-	sf::Vector2f mousePos = sf::Vector2f(sf::Mouse::getPosition(window));
 
+#pragma region Position
+	sf::Vector2f mousePos = sf::Vector2f(sf::Mouse::getPosition(window));
+#pragma endregion
+
+#pragma region Left mouse btn
 	if (LEFTMOUSE && !lastLeft) {
 		for (int i = 0; i < nodes.size() && !movingObject; ++i) {
 			if (nodes[i].contains(mousePos)) {
@@ -43,10 +50,45 @@ void Simulation::update(sf::RenderWindow& window)
 		movedNodeIdx = -1;
 	}
 
-	if (movedNodeIdx != -1) nodes[movedNodeIdx].position = mousePos;
-
 	lastLeft = LEFTMOUSE;
+
+#pragma endregion
+
+#pragma region Right Mouse btn
+	if (RIGHTMOUSE) {
+		for (int i = 0; i < nodes.size() && !movingObject; ++i) {
+			if (nodes[i].contains(mousePos)) {
+				nodes[i].selected = true;
+				break;
+			}
+		}
+	}
+	// Just released the right mouse btn
+	else if (lastRight) {
+		for (int i = 0; i < nodes.size() && !movingObject; ++i) {
+			if (nodes[i].contains(mousePos)) {
+				nodes[i].state = !nodes[i].state;
+				break;
+			}
+		}
+	}
+
+	lastRight = RIGHTMOUSE;
+#pragma endregion
+
 #pragma endregion	
+
+#pragma region Move node
+	if (movedNodeIdx != -1) {
+		nodes[movedNodeIdx].position = mousePos;
+		nodes[movedNodeIdx].selected = true;
+		if (SHIFT) {
+			// Clamping position
+			nodes[movedNodeIdx].position = sf::Vector2f(sf::Vector2i(nodes[movedNodeIdx].position / spacing)) * spacing;
+			nodes[movedNodeIdx].position += sf::Vector2f(spacing, spacing) / 2.0f;
+		}
+	}
+#pragma endregion
 }
 
 void Simulation::draw(sf::RenderWindow& window)
