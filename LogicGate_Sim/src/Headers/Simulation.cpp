@@ -13,11 +13,6 @@ Simulation::Simulation(std::string dirPath)
 
 void Simulation::update(sf::RenderWindow& window)
 {
-#pragma region Spacing
-	spacing = std::min(window.getSize().x, window.getSize().y) / gridSize;
-	bgShader.setUniform("spacing", spacing);
-#pragma endregion
-
 #pragma region KeyBinds
 	if (ADD_NODE && !addedNodeLastFrame) {
 		addedNodeLastFrame = true;
@@ -84,8 +79,7 @@ void Simulation::update(sf::RenderWindow& window)
 		nodes[movedNodeIdx].selected = true;
 		if (SHIFT) {
 			// Clamping position
-			nodes[movedNodeIdx].position = sf::Vector2f(sf::Vector2i(nodes[movedNodeIdx].position / spacing)) * spacing;
-			nodes[movedNodeIdx].position += sf::Vector2f(spacing, spacing) / 2.0f;
+			nodes[movedNodeIdx].position = clampToGrid(nodes[movedNodeIdx].position, spacing) + sf::Vector2f(spacing, spacing) / 2.0f;
 		}
 	}
 #pragma endregion
@@ -112,6 +106,22 @@ void Simulation::draw(sf::RenderWindow& window)
 
 	window.draw(background, &bgShader);
 
-	for (Node& node : nodes) node.draw(window);
+	for (Node& node : nodes) {
+		node.draw(window, spacing / 2.0f);
+	}
+
+	oldGridSize = gridSize;
 }
 
+void Simulation::zoom(sf::RenderWindow& window)
+{
+#pragma region Spacing
+	spacing = std::min(window.getSize().x, window.getSize().y) / gridSize;
+	bgShader.setUniform("spacing", spacing);
+#pragma endregion
+
+	for (Node& node : nodes) {
+		sf::Vector2f viewCenter = sf::Vector2f(0.0f, window.getSize().y);
+		node.position = (node.position - viewCenter) * oldGridSize / gridSize + viewCenter;
+	}
+}

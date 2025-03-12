@@ -11,6 +11,12 @@ inline sf::Vector2f getRandomOffset(float minOffset, float maxOffset) {
 
 	return sf::Vector2f(offsetX, offsetY);
 }
+inline sf::Vector2f clampToGrid(sf::Vector2f position, float gridSize) {
+	return sf::Vector2f(
+		std::floor(position.x / gridSize) * gridSize,
+		std::floor(position.y / gridSize) * gridSize
+	);
+}
 
 class Simulation
 {
@@ -21,9 +27,11 @@ private:
 	sf::Clock clock;
 	sf::Shader bgShader;
 
+public:
+	float gridSize = 10.0f;
+
 private:
-	const float gridSize = 10.0f;
-	const int thickness = 1;
+	const int thickness = 2;
 	float spacing = 50.0f;
 
 private:
@@ -32,6 +40,7 @@ private:
 	bool lastLeft = false;
 	bool lastRight = false;
 	int movedNodeIdx = -1;
+	float oldGridSize = gridSize;
 
 private:
 	std::vector<Node> nodes;
@@ -39,5 +48,6 @@ private:
 public:
 	void update(sf::RenderWindow& window);
 	void draw(sf::RenderWindow& window);
+	void zoom(sf::RenderWindow& window);
 };
 

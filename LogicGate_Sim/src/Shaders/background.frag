@@ -38,11 +38,13 @@ void main() {
         Node node = nodes[i];
         // Glow Effect
         if (node.state) {
+            float nodeRadius = spacing / 2.0;
             vec2 flippedNodePos = vec2(node.position.x, resolution.y - node.position.y);
             float distFromNode = max(distance(position, flippedNodePos), 0.001); // Avoid division by zero
+            float normalizedDist = distFromNode / nodeRadius;
 
             float pulse = sin(time * 2.0) / 7.0 + (1.0 - 1.0 / 7.0);
-            float intensity = smoothstep(0.0, 1.0, pulse * 350.0 / (distFromNode * distFromNode)); // Smoothed glow
+            float intensity = smoothstep(0.0, 1.0, pulse / (normalizedDist * normalizedDist)); // Smoothed glow
 
             vec3 glowColor = vec3(219.0, 22.0, 47.0) / 255.0 * intensity;
             FragColor.rgb = min(FragColor.rgb + glowColor, vec3(1.0)); // Prevent overexposure

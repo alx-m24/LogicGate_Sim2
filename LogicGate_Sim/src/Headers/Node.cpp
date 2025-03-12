@@ -1,8 +1,8 @@
 #include "Node.hpp"
 
-void Node::draw(sf::RenderWindow& window)
+void Node::draw(sf::RenderWindow& window, float radius)
 {
-	circle.setRadius(20.0f);
+	circle.setRadius(radius);
 
 	circle.setFillColor(state ? sf::Color(209, 0, 0) : sf::Color::White);
 	if (selected) {
