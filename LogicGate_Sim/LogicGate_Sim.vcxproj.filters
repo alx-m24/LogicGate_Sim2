@@ -24,16 +24,14 @@
     <ClCompile Include="src\Headers\Node.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Headers\Wire.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\Shaders\background.frag">
       <Filter>Resource Files</Filter>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="..\..\..\..\Downloads\LogitGate-ColorPalette.png">
-      <Filter>Resource Files</Filter>
-    </Image>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Headers\Simulation.hpp">
@@ -51,10 +49,13 @@
     <ClInclude Include="resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Headers\Wire.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="LogicGate_Sim.rc">
+    <Image Include="src\LogitGate-ColorPalette.png">
       <Filter>Resource Files</Filter>
-    </ResourceCompile>
+    </Image>
   </ItemGroup>
 </Project>

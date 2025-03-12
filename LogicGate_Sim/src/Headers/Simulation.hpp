@@ -3,6 +3,7 @@
 #include <vector>
 #include <iostream>
 #include "Node.hpp"
+#include "Wire.hpp"
 #include "KeyBinds/KeyBinds.hpp"
 
 inline sf::Vector2f getRandomOffset(float minOffset, float maxOffset) {
@@ -26,24 +27,29 @@ public:
 private:
 	sf::Clock clock;
 	sf::Shader bgShader;
+	sf::Vector2f mousePos;
 
 public:
 	float gridSize = 10.0f;
 
 private:
-	const int thickness = 2;
+	int thickness = 2;
 	float spacing = 50.0f;
 
 private:
+	bool addingWire = false;
 	bool addedNodeLastFrame = false;
 	bool movingObject = false;
 	bool lastLeft = false;
 	bool lastRight = false;
+	bool lastMid = false;
 	int movedNodeIdx = -1;
 	float oldGridSize = gridSize;
 
 private:
-	std::vector<Node> nodes;
+	// Pointer: as 'wire' references nodes and thus changing the location(when changing size) will affect the wires
+	std::vector<Node*> nodes;
+	std::vector<Wire> wires;
 
 public:
 	void update(sf::RenderWindow& window);

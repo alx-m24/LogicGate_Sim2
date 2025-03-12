@@ -4,13 +4,13 @@
 
 class Node
 {
-private:
-	sf::CircleShape circle;
-
 public:
-	bool state;
+	bool state = false;
 	bool selected = false;
 	sf::Vector2f position;
+
+private:
+	sf::CircleShape circle;
 
 public:
 	void draw(sf::RenderWindow& window, float radius);

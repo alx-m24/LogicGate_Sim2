@@ -130,13 +130,11 @@
   <ItemGroup>
     <ClCompile Include="src\Headers\Node.cpp" />
     <ClCompile Include="src\Headers\Simulation.cpp" />
+    <ClCompile Include="src\Headers\Wire.cpp" />
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="src\Shaders\background.frag" />
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="..\..\..\..\Downloads\LogitGate-ColorPalette.png" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h" />
@@ -144,9 +142,10 @@
     <ClInclude Include="src\Headers\Node.hpp" />
     <ClInclude Include="src\Headers\Object.hpp" />
     <ClInclude Include="src\Headers\Simulation.hpp" />
+    <ClInclude Include="src\Headers\Wire.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="LogicGate_Sim.rc" />
+    <Image Include="src\LogitGate-ColorPalette.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

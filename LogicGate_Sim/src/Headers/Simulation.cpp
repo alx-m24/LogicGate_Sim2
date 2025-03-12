@@ -15,26 +15,24 @@ void Simulation::update(sf::RenderWindow& window)
 {
 #pragma region KeyBinds
 	if (ADD_NODE && !addedNodeLastFrame) {
-		addedNodeLastFrame = true;
-		nodes.emplace_back(Node());
-		nodes.back().state = false;
-		nodes.back().position = (sf::Vector2f(window.getSize()) / 2.0f) + getRandomOffset(-50.0f, 50.0f);
+		nodes.emplace_back(new Node());
+		nodes.back()->state = false;
+		nodes.back()->position = (sf::Vector2f(window.getSize()) / 2.0f) + getRandomOffset(-50.0f, 50.0f);
 	}
-	else {
-		addedNodeLastFrame = ADD_NODE;
-	}
+
+	addedNodeLastFrame = ADD_NODE;
 #pragma endregion
 
 #pragma region Mouse
 
 #pragma region Position
-	sf::Vector2f mousePos = sf::Vector2f(sf::Mouse::getPosition(window));
+	mousePos = sf::Vector2f(sf::Mouse::getPosition(window));
 #pragma endregion
 
 #pragma region Left mouse btn
 	if (LEFTMOUSE && !lastLeft) {
 		for (int i = 0; i < nodes.size() && !movingObject; ++i) {
-			if (nodes[i].contains(mousePos)) {
+			if (nodes[i]->contains(mousePos)) {
 				movingObject = true;
 				movedNodeIdx = i;
 			}
@@ -52,8 +50,8 @@ void Simulation::update(sf::RenderWindow& window)
 #pragma region Right Mouse btn
 	if (RIGHTMOUSE) {
 		for (int i = 0; i < nodes.size() && !movingObject; ++i) {
-			if (nodes[i].contains(mousePos)) {
-				nodes[i].selected = true;
+			if (nodes[i]->contains(mousePos)) {
+				nodes[i]->selected = true;
 				break;
 			}
 		}
@@ -61,8 +59,8 @@ void Simulation::update(sf::RenderWindow& window)
 	// Just released the right mouse btn
 	else if (lastRight) {
 		for (int i = 0; i < nodes.size() && !movingObject; ++i) {
-			if (nodes[i].contains(mousePos)) {
-				nodes[i].state = !nodes[i].state;
+			if (nodes[i]->contains(mousePos)) {
+				nodes[i]->state = !nodes[i]->state;
 				break;
 			}
 		}
@@ -71,18 +69,78 @@ void Simulation::update(sf::RenderWindow& window)
 	lastRight = RIGHTMOUSE;
 #pragma endregion
 
+#pragma region Middle Mouse btn
+	if (!addingWire) {
+		if (MIDDLEMOUSE) {
+			for (int i = 0; i < nodes.size() && !movingObject; ++i) {
+				if (nodes[i]->contains(mousePos)) {
+					nodes[i]->selected = true;
+					break;
+				}
+			}
+		}
+		// Just released the middle mouse btn
+		else if (lastMid) {
+			for (int i = 0; i < nodes.size() && !movingObject; ++i) {
+				if (nodes[i]->contains(mousePos)) {
+					addingWire = true;
+
+					wires.emplace_back(Wire(&(nodes[i]->position), &mousePos));
+
+					void* tempPtr = &(*nodes[i]); // pointer to pointe: ik it fcks with your brain
+					wires.back().input = static_cast<bool*>(tempPtr);
+					break;
+				}
+			}
+		}
+	}
+	else {
+		if (MIDDLEMOUSE) {
+			for (int i = 0; i < nodes.size() && !movingObject; ++i) {
+				if (nodes[i]->contains(mousePos)) {
+					nodes[i]->selected = true;
+					break;
+				}
+			}
+		}
+		// Just released the middle mouse btn
+		else if (lastMid) {
+			addingWire = false;
+			bool addedWire = false;
+			for (int i = 0; i < nodes.size() && !movingObject; ++i) {
+				if (nodes[i]->contains(mousePos)) {
+					wires.back().p2 = &(nodes[i]->position);
+
+					void* tempPtr = &(*nodes[i]);
+					wires.back().output = static_cast<bool*>(tempPtr);
+
+					addedWire = true;
+					break;
+				}
+			}
+			if (!addedWire) {
+				wires.pop_back();
+			}
+		}
+	}
+
+	lastMid = MIDDLEMOUSE;
+#pragma endregion
+
 #pragma endregion	
 
 #pragma region Move node
 	if (movedNodeIdx != -1) {
-		nodes[movedNodeIdx].position = mousePos;
-		nodes[movedNodeIdx].selected = true;
+		nodes[movedNodeIdx]->position = mousePos;
+		nodes[movedNodeIdx]->selected = true;
 		if (SHIFT) {
 			// Clamping position
-			nodes[movedNodeIdx].position = clampToGrid(nodes[movedNodeIdx].position, spacing) + sf::Vector2f(spacing, spacing) / 2.0f;
+			nodes[movedNodeIdx]->position = clampToGrid(nodes[movedNodeIdx]->position, spacing) + sf::Vector2f(spacing, spacing) / 2.0f;
 		}
 	}
 #pragma endregion
+
+	for (Wire& wire : wires) wire.update();
 }
 
 void Simulation::draw(sf::RenderWindow& window)
@@ -100,14 +158,16 @@ void Simulation::draw(sf::RenderWindow& window)
 	bgShader.setUniform("nodeNum", nodeNum);
 	for (int i = 0; i < nodeNum; ++i) {
 		std::string name = "nodes[" + std::to_string(i) + "].";
-		bgShader.setUniform(name + "state", nodes[i].state);
-		bgShader.setUniform(name + "position", nodes[i].position);
+		bgShader.setUniform(name + "state", nodes[i]->state);
+		bgShader.setUniform(name + "position", nodes[i]->position);
 	}
 
 	window.draw(background, &bgShader);
 
-	for (Node& node : nodes) {
-		node.draw(window, spacing / 2.0f);
+	for (Wire& wire : wires) wire.draw(window);
+
+	for (Node* node : nodes) {
+		node->draw(window, spacing / 2.0f);
 	}
 
 	oldGridSize = gridSize;
@@ -118,10 +178,13 @@ void Simulation::zoom(sf::RenderWindow& window)
 #pragma region Spacing
 	spacing = std::min(window.getSize().x, window.getSize().y) / gridSize;
 	bgShader.setUniform("spacing", spacing);
+
+	if (gridSize > 20.0f) thickness = 1;
+	else thickness = 2;
 #pragma endregion
 
-	for (Node& node : nodes) {
+	for (Node* node : nodes) {
 		sf::Vector2f viewCenter = sf::Vector2f(0.0f, window.getSize().y);
-		node.position = (node.position - viewCenter) * oldGridSize / gridSize + viewCenter;
+		node->position = (node->position - viewCenter) * oldGridSize / gridSize + viewCenter;
 	}
 }
