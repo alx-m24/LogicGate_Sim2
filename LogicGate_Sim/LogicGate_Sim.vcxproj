@@ -128,10 +128,17 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Headers\Simulation.cpp" />
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="src\Shaders\background.frag" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\..\..\..\Downloads\LogitGate-ColorPalette.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\Headers\Simulation.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
