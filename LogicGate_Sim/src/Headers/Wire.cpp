@@ -20,3 +20,11 @@ void Wire::draw(sf::RenderWindow& window) const
 
 	window.draw(line);
 }
+
+bool Wire::getState() const
+{
+	if (input != nullptr && output != nullptr)
+		return *input;
+
+	return false;
+}

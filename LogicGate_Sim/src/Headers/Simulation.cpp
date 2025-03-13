@@ -147,6 +147,7 @@ void Simulation::draw(sf::RenderWindow& window)
 {
 	sf::Vector2f windowSize = sf::Vector2f(window.getSize());
 
+#pragma region Background
 	sf::RectangleShape background;
 	background.setSize(windowSize);
 	background.setPosition(0.0f, 0.0f);
@@ -161,16 +162,23 @@ void Simulation::draw(sf::RenderWindow& window)
 		bgShader.setUniform(name + "state", nodes[i]->state);
 		bgShader.setUniform(name + "position", nodes[i]->position);
 	}
+	int wireNum = wires.size();
+	bgShader.setUniform("wireNum", wireNum);
+	for (int i = 0; i < wireNum; ++i) {
+		std::string name = "wires[" + std::to_string(i) + "].";
+		bgShader.setUniform(name + "state", wires[i].getState());
+		bgShader.setUniform(name + "p1", *wires[i].p1);
+		bgShader.setUniform(name + "p2", *wires[i].p2);
+	}
 
 	window.draw(background, &bgShader);
+#pragma endregion
 
 	for (Wire& wire : wires) wire.draw(window);
 
 	for (Node* node : nodes) {
 		node->draw(window, spacing / 2.0f);
 	}
-
-	oldGridSize = gridSize;
 }
 
 void Simulation::zoom(sf::RenderWindow& window)
@@ -187,4 +195,6 @@ void Simulation::zoom(sf::RenderWindow& window)
 		sf::Vector2f viewCenter = sf::Vector2f(0.0f, window.getSize().y);
 		node->position = (node->position - viewCenter) * oldGridSize / gridSize + viewCenter;
 	}
+
+	oldGridSize = gridSize;
 }
