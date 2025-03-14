@@ -5,6 +5,8 @@ Simulation::Simulation(std::string dirPath)
 	bgShader.loadFromFile(dirPath + "\\Shaders\\background.frag", sf::Shader::Fragment);
 	bgShader.setUniform("thickness", thickness);
 
+	if (!arial.loadFromFile("C:\\Windows\\Fonts\\Arial.ttf")) std::cout << "Could not load font" << std::endl;
+
 	clock.restart();
 	
 	// Seed the random number generator
@@ -14,13 +16,19 @@ Simulation::Simulation(std::string dirPath)
 void Simulation::update(sf::RenderWindow& window)
 {
 #pragma region KeyBinds
-	if (ADD_NODE && !addedNodeLastFrame) {
+	if (ADD_GATE && !addedGateLastFrame) {
+		gates.emplace_back(new NotGate(spacing, arial));
+		gates.back()->position = (sf::Vector2f(window.getSize()) / 2.0f) + getRandomOffset(-50.0f, 50.0f);
+	}
+	else if (ADD_NODE && !addedNodeLastFrame) {
 		nodes.emplace_back(new Node());
 		nodes.back()->state = false;
 		nodes.back()->position = (sf::Vector2f(window.getSize()) / 2.0f) + getRandomOffset(-50.0f, 50.0f);
 	}
 
 	addedNodeLastFrame = ADD_NODE;
+
+	addedGateLastFrame = ADD_GATE;
 #pragma endregion
 
 #pragma region Mouse
@@ -35,12 +43,21 @@ void Simulation::update(sf::RenderWindow& window)
 			if (nodes[i]->contains(mousePos)) {
 				movingObject = true;
 				movedNodeIdx = i;
+				break;
+			}
+		}
+		for (int i = 0; i < gates.size() && !movingObject; ++i) {
+			if (gates[i]->contains(mousePos)) {
+				movingObject = true;
+				movedGateIdx = i;
+				break;
 			}
 		}
 	}
 	if (lastLeft && !LEFTMOUSE) {
 		movingObject = false;
 		movedNodeIdx = -1;
+		movedGateIdx = -1;
 	}
 
 	lastLeft = LEFTMOUSE;
@@ -78,6 +95,20 @@ void Simulation::update(sf::RenderWindow& window)
 					break;
 				}
 			}
+			for (int i = 0; i < gates.size() && !movingObject; ++i) {
+				for (Connector& connector : gates[i]->inputs) {
+					if (connector.contains(mousePos)) {
+						gates[i]->isSelected = true;
+						break;
+					}
+				}
+				for (Connector& connector : gates[i]->outputs) {
+					if (connector.contains(mousePos)) {
+						gates[i]->isSelected = true;
+						break;
+					}
+				}
+			}
 		}
 		// Just released the middle mouse btn
 		else if (lastMid) {
@@ -92,6 +123,28 @@ void Simulation::update(sf::RenderWindow& window)
 					break;
 				}
 			}
+			for (int i = 0; i < gates.size() && !movingObject; ++i) {
+				for (Connector& connector : gates[i]->inputs) {
+					if (connector.contains(mousePos)) {
+						addingWire = true;
+
+						wires.emplace_back(Wire(&connector.gloabalPosition, &mousePos));
+
+						wires.back().input = &connector.state;
+						break;
+					}
+				}
+				for (Connector& connector : gates[i]->outputs) {
+					if (connector.contains(mousePos)) {
+						addingWire = true;
+
+						wires.emplace_back(Wire(&connector.gloabalPosition, &mousePos));
+
+						wires.back().input = &connector.state;
+						break;
+					}
+				}
+			}
 		}
 	}
 	else {
@@ -100,6 +153,20 @@ void Simulation::update(sf::RenderWindow& window)
 				if (nodes[i]->contains(mousePos)) {
 					nodes[i]->selected = true;
 					break;
+				}
+			}
+			for (int i = 0; i < gates.size() && !movingObject; ++i) {
+				for (Connector connector : gates[i]->inputs) {
+					if (connector.contains(mousePos)) {
+						gates[i]->isSelected = true;
+						break;
+					}
+				}
+				for (Connector connector : gates[i]->outputs) {
+					if (connector.contains(mousePos)) {
+						gates[i]->isSelected = true;
+						break;
+					}
 				}
 			}
 		}
@@ -116,6 +183,26 @@ void Simulation::update(sf::RenderWindow& window)
 
 					addedWire = true;
 					break;
+				}
+			}
+			for (int i = 0; i < gates.size() && !movingObject; ++i) {
+				for (Connector& connector : gates[i]->inputs) {
+					if (connector.contains(mousePos)) {
+						wires.back().p2 = &connector.gloabalPosition;
+						wires.back().output = &connector.state;
+
+						addedWire = true;
+						break;
+					}
+				}
+				for (Connector& connector : gates[i]->outputs) {
+					if (connector.contains(mousePos)) {
+						wires.back().p2 = &connector.gloabalPosition;
+						wires.back().output = &connector.state;
+
+						addedWire = true;
+						break;
+					}
 				}
 			}
 			if (!addedWire) {
@@ -140,7 +227,19 @@ void Simulation::update(sf::RenderWindow& window)
 	}
 #pragma endregion
 
+#pragma region Move gate
+	if (movedGateIdx != -1) {
+		gates[movedGateIdx]->position = mousePos;
+		gates[movedGateIdx]->isSelected = true;
+		if (SHIFT) {
+			// Clamping position
+			gates[movedGateIdx]->position = clampToGrid(gates[movedGateIdx]->position, spacing) + sf::Vector2f(spacing, spacing) / 2.0f;
+		}
+	}
+#pragma endregion
+
 	for (Wire& wire : wires) wire.update();
+	for (Gate* gate : gates) gate->update();
 }
 
 void Simulation::draw(sf::RenderWindow& window)
@@ -177,6 +276,9 @@ void Simulation::draw(sf::RenderWindow& window)
 	for (Node* node : nodes) {
 		node->draw(window, spacing / 2.0f);
 	}
+	for (Gate* gate : gates) {
+		gate->draw(window, spacing);
+	}
 }
 
 void Simulation::zoom(sf::RenderWindow& window)
@@ -189,9 +291,14 @@ void Simulation::zoom(sf::RenderWindow& window)
 	else thickness = 2;
 #pragma endregion
 
+	sf::Vector2f viewCenter = sf::Vector2f(0.0f, window.getSize().y);
 	for (Node* node : nodes) {
-		sf::Vector2f viewCenter = sf::Vector2f(0.0f, window.getSize().y);
 		node->position = (node->position - viewCenter) * oldGridSize / gridSize + viewCenter;
+	}
+
+	for (Gate* gate : gates) {
+		gate->position = (gate->position - viewCenter) * oldGridSize / gridSize + viewCenter;
+		gate->resize(spacing);
 	}
 
 	oldGridSize = gridSize;

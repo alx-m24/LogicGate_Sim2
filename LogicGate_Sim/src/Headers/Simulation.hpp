@@ -3,6 +3,7 @@
 #include <vector>
 #include <iostream>
 #include "Node.hpp"
+#include "Gate.hpp"
 #include "Wire.hpp"
 #include "KeyBinds/KeyBinds.hpp"
 
@@ -25,6 +26,7 @@ public:
 	Simulation(std::string dirPath);
 
 private:
+	sf::Font arial;
 	sf::Clock clock;
 	sf::Shader bgShader;
 	sf::Vector2f mousePos;
@@ -39,16 +41,19 @@ private:
 private:
 	bool addingWire = false;
 	bool addedNodeLastFrame = false;
+	bool addedGateLastFrame = false;
 	bool movingObject = false;
 	bool lastLeft = false;
 	bool lastRight = false;
 	bool lastMid = false;
 	int movedNodeIdx = -1;
+	int movedGateIdx = -1;
 	float oldGridSize = gridSize;
 
 private:
 	// Pointer: as 'wire' references nodes and thus changing the location(when changing size) will affect the wires
 	std::vector<Node*> nodes;
+	std::vector<Gate*> gates;
 	std::vector<Wire> wires;
 
 public:
