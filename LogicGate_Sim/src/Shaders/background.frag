@@ -26,6 +26,8 @@ struct Wire {
 uniform Wire wires[MAXWIRE_NUM];
 uniform int wireNum;
 
+float map(float value, float min1, float max1, float min2, float max2) {return min2 + (value - min1) * (max2 - min2) / (max1 - min1);}
+
 void main() {
     vec2 position = gl_FragCoord.xy;
     vec2 uv = position / resolution;
@@ -60,7 +62,7 @@ void main() {
             FragColor.rgb = min(FragColor.rgb + glowColor, vec3(1.0)); // Prevent overexposure
         }
     }
-    // Wire glow
+    // Wire
     for (int i = 0; i < wireNum; ++i) {
         Wire wire = wires[i];
         vec2 p1 = vec2(wire.p1.x, resolution.y - wire.p1.y);
@@ -80,7 +82,8 @@ void main() {
         // Distance from fragment to closest point
         float distFromLine = max(length(position - closest), 0.001);
         if (wire.state) {
-            float pulse = (1.25 * sin((length(closest - p1) - time * 100.0) * 0.05) + 1.0) / 2.0 + 1.5;
+            float pulse = sin((length(closest - p1) - time * 100.0) * 0.05);
+            pulse = map(pulse, -1.0, 1.0, 1.5, 3.0);
 
             float intensity = smoothstep(0.0, 1.0, pulse / (distFromLine * distFromLine)); // Smoothed glow
 
