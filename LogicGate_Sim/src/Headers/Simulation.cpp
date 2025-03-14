@@ -174,8 +174,6 @@ void Simulation::draw(sf::RenderWindow& window)
 	window.draw(background, &bgShader);
 #pragma endregion
 
-	for (Wire& wire : wires) wire.draw(window);
-
 	for (Node* node : nodes) {
 		node->draw(window, spacing / 2.0f);
 	}

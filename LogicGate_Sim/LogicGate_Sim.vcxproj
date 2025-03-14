@@ -128,6 +128,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Headers\Gate.cpp" />
     <ClCompile Include="src\Headers\Node.cpp" />
     <ClCompile Include="src\Headers\Simulation.cpp" />
     <ClCompile Include="src\Headers\Wire.cpp" />
@@ -138,6 +139,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h" />
+    <ClInclude Include="src\Headers\Gate.hpp" />
     <ClInclude Include="src\Headers\KeyBinds\KeyBinds.hpp" />
     <ClInclude Include="src\Headers\Node.hpp" />
     <ClInclude Include="src\Headers\Object.hpp" />

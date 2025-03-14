@@ -16,6 +16,5 @@ public:
 
 public:
 	void update();
-	void draw(sf::RenderWindow& window) const;
 	bool getState() const;
 };

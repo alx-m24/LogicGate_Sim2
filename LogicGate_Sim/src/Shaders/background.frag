@@ -63,31 +63,32 @@ void main() {
     // Wire glow
     for (int i = 0; i < wireNum; ++i) {
         Wire wire = wires[i];
+        vec2 p1 = vec2(wire.p1.x, resolution.y - wire.p1.y);
+        vec2 p2 = vec2(wire.p2.x, resolution.y - wire.p2.y);
+
+        // Get direction and length of the line segment
+        vec2 dir = p2 - p1;
+        float lenSq = dot(dir, dir);
+        
+        // Projection factor (t)
+        float t = dot(position - p1, dir) / lenSq;
+        t = clamp(t, 0.0, 1.0);
+        
+        // Closest point on the line segment
+        vec2 closest = p1 + t * dir;
+        
+        // Distance from fragment to closest point
+        float distFromLine = max(length(position - closest), 0.001);
         if (wire.state) {
-            vec2 p1 = vec2(wire.p1.x, resolution.y - wire.p1.y);
-            vec2 p2 = vec2(wire.p2.x, resolution.y - wire.p2.y);
-
-            // Get direction and length of the line segment
-            vec2 dir = p2 - p1;
-            float lenSq = dot(dir, dir);
-            
-            // Projection factor (t)
-            float t = dot(position - p1, dir) / lenSq;
-            t = clamp(t, 0.0, 1.0);
-            
-            // Closest point on the line segment
-            vec2 closest = p1 + t * dir;
-            
-            // Distance from fragment to closest point
-            float distFromLine = max(length(position - closest), 0.001);
-
-            float pulse = (sin((length(closest - p1) - time * 75.0) * 0.05) + 1.0) / 2.0;
-            pulse += sin(time * 2.0) / 3.0 + (1.0 - 1.0 / 3.0);
+            float pulse = (1.25 * sin((length(closest - p1) - time * 100.0) * 0.05) + 1.0) / 2.0 + 1.5;
 
             float intensity = smoothstep(0.0, 1.0, pulse / (distFromLine * distFromLine)); // Smoothed glow
 
             vec3 glowColor = vec3(219.0, 22.0, 47.0) / 255.0 * intensity;
             FragColor.rgb = min(FragColor.rgb + glowColor, vec3(1.0)); // Prevent overexposure
+        }
+        else {
+            if (distFromLine < 1.5) FragColor = vec4(vec3(147.0, 145.0, 150.0) / 255.0, 1.0);
         }
     }
 }
