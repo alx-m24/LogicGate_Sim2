@@ -49,10 +49,9 @@ public:
 
 class NotGate : public Gate {
 public:
-	NotGate(float spacing, sf::Font& font) : Gate("NOT",sf::Color(2, 103, 193), font) {
+	NotGate(float spacing, sf::Font& font) : Gate("NOT",sf::Color(219, 22, 47), font) {
 		inputs.resize(1);
 		outputs.resize(1);
-
 
 		resize(spacing);
 	};
@@ -71,5 +70,36 @@ public:
 
 		inputs[0].localPosition.x = -rect.getSize().y;
 		outputs[0].localPosition.x = rect.getSize().y;
+	}
+};
+
+class AndGate : public Gate {
+public:
+	AndGate(float spacing, sf::Font& font) : Gate("AND", sf::Color(2, 103, 193), font) {
+		inputs.resize(2);
+		outputs.resize(1);
+
+		resize(spacing);
+	};
+
+public:
+	virtual void update() {
+		outputs[0].state = inputs[0].state && inputs[1].state;
+	}
+
+	virtual void resize(float spacing) {
+		spacing *= 1.5f;
+
+		rect.setSize(sf::Vector2f(spacing, spacing / 2.0f));
+		rect.setOrigin(rect.getSize() / 2.0f);
+		rect.setOutlineThickness(2.0f);
+		rect.setOutlineColor(sf::Color::Black);
+
+		inputs[0].localPosition.x = -rect.getSize().y;
+		inputs[1].localPosition.x = -rect.getSize().y;
+		outputs[0].localPosition.x = rect.getSize().y;
+
+		inputs[0].localPosition.y = -rect.getSize().y / 2.0f + spacing / 8.5f;
+		inputs[1].localPosition.y = rect.getSize().y / 2.0f - spacing / 8.5f;
 	}
 };

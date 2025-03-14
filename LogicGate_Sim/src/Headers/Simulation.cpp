@@ -17,7 +17,8 @@ void Simulation::update(sf::RenderWindow& window)
 {
 #pragma region KeyBinds
 	if (ADD_GATE && !addedGateLastFrame) {
-		gates.emplace_back(new NotGate(spacing, arial));
+		//gates.emplace_back(new NotGate(spacing, arial));
+		gates.emplace_back(new AndGate(spacing, arial));
 		gates.back()->position = (sf::Vector2f(window.getSize()) / 2.0f) + getRandomOffset(-50.0f, 50.0f);
 	}
 	else if (ADD_NODE && !addedNodeLastFrame) {
