@@ -2,8 +2,8 @@
 
 Simulation::Simulation(std::string dirPath)
 {
-	bgShader.loadFromFile(dirPath + "\\Shaders\\background.frag", sf::Shader::Fragment);
-	bgShader.setUniform("thickness", thickness);
+	shader.loadFromFile(dirPath + "\\Shaders\\mainShader.frag", sf::Shader::Fragment);
+	shader.setUniform("thickness", thickness);
 
 	if (!arial.loadFromFile("C:\\Windows\\Fonts\\Arial.ttf")) std::cout << "Could not load font" << std::endl;
 
@@ -252,33 +252,39 @@ void Simulation::draw(sf::RenderWindow& window)
 	background.setSize(windowSize);
 	background.setPosition(0.0f, 0.0f);
 
-	bgShader.setUniform("resolution", windowSize);
-	bgShader.setUniform("time", clock.getElapsedTime().asSeconds());
+	shader.setUniform("resolution", windowSize);
+	shader.setUniform("time", clock.getElapsedTime().asSeconds());
 
 	int nodeNum = nodes.size();
-	bgShader.setUniform("nodeNum", nodeNum);
+	shader.setUniform("nodeNum", nodeNum);
 	for (int i = 0; i < nodeNum; ++i) {
 		std::string name = "nodes[" + std::to_string(i) + "].";
-		bgShader.setUniform(name + "state", nodes[i]->state);
-		bgShader.setUniform(name + "position", nodes[i]->position);
+		shader.setUniform(name + "state", nodes[i]->state);
+		shader.setUniform(name + "position", nodes[i]->position);
 	}
 	int wireNum = wires.size();
-	bgShader.setUniform("wireNum", wireNum);
+	shader.setUniform("wireNum", wireNum);
 	for (int i = 0; i < wireNum; ++i) {
 		std::string name = "wires[" + std::to_string(i) + "].";
-		bgShader.setUniform(name + "state", wires[i].getState());
-		bgShader.setUniform(name + "p1", *wires[i].p1);
-		bgShader.setUniform(name + "p2", *wires[i].p2);
+		shader.setUniform(name + "state", wires[i].getState());
+		shader.setUniform(name + "p1", *wires[i].p1);
+		shader.setUniform(name + "p2", *wires[i].p2);
+	}
+	int gateNum = gates.size();
+	shader.setUniform("gateNum", gateNum);
+	for (int i = 0; i < gateNum; ++i) {
+		std::string name = "gates[" + std::to_string(i) + "].";
+		gates[i]->setuniforms(shader, name, spacing);
 	}
 
-	window.draw(background, &bgShader);
+	window.draw(background, &shader);
 #pragma endregion
 
-	for (Node* node : nodes) {
-		node->draw(window, spacing / 2.0f);
-	}
 	for (Gate* gate : gates) {
 		gate->draw(window, spacing);
+	}
+	for (Node* node : nodes) {
+		node->draw(window, spacing / 2.0f);
 	}
 }
 
@@ -286,7 +292,7 @@ void Simulation::zoom(sf::RenderWindow& window)
 {
 #pragma region Spacing
 	spacing = std::min(window.getSize().x, window.getSize().y) / gridSize;
-	bgShader.setUniform("spacing", spacing);
+	shader.setUniform("spacing", spacing);
 
 	if (gridSize > 20.0f) thickness = 1;
 	else thickness = 2;

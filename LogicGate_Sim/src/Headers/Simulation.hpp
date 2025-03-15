@@ -28,7 +28,7 @@ public:
 private:
 	sf::Font arial;
 	sf::Clock clock;
-	sf::Shader bgShader;
+	sf::Shader shader;
 	sf::Vector2f mousePos;
 
 public:

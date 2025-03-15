@@ -2,6 +2,7 @@
 
 #define MAXNODE_NUM 64
 #define MAXWIRE_NUM 64
+#define MAXGATE_NUM 64
 
 out vec4 FragColor;
 uniform float spacing;
@@ -26,25 +27,40 @@ struct Wire {
 uniform Wire wires[MAXWIRE_NUM];
 uniform int wireNum;
 
+struct Gate {
+    vec3 color;
+    vec2 position;
+    vec2 halfSize;
+    float radius;
+};
+
+uniform Gate gates[MAXGATE_NUM];
+uniform int gateNum;
+
 float map(float value, float min1, float max1, float min2, float max2) {return min2 + (value - min1) * (max2 - min2) / (max1 - min1);}
+float roundedBoxSDF(vec2 p, vec2 b, float r) {
+    return length(max(abs(p) - b + vec2(r), 0.0)) - r;
+}
+bool isOnRoundedRect(vec2 p, vec2 b, float r) {
+    return roundedBoxSDF(p, b, r) <= 0.0;
+}
 
 void main() {
     vec2 position = gl_FragCoord.xy;
     vec2 uv = position / resolution;
-    vec2 modResult = mod(position + spacing / 2.0, spacing);
-    
-    float epsilon = 0.5 + thickness;
-    
-    if (modResult.x < epsilon && modResult.y < epsilon) {
-        FragColor = vec4(1.0); // White grid
-        return;
-    }
 
     float distFromCenter = length(2.0 * uv - 1.0);
 
     // Base background color
     FragColor = vec4(vec3(64.0, 61.0, 57.0) / 255.0, 1.0);
     FragColor = vec4(mix(FragColor, FragColor / 2.0, distFromCenter).xyz, 1.0);
+    
+    // Grid
+    float epsilon = 0.5 + thickness;
+    vec2 modResult = mod(position + spacing / 2.0, spacing);
+    if (modResult.x < epsilon && modResult.y < epsilon) {
+        FragColor = vec4(1.0); // White grid
+    }
 
     // Node glow
     for (int i = 0; i < nodeNum; ++i) {
@@ -93,5 +109,24 @@ void main() {
         else {
             if (distFromLine < 1.5) FragColor = vec4(vec3(147.0, 145.0, 150.0) / 255.0, 1.0);
         }
+    }
+    // Gate
+    for (int i = 0; i < gateNum; ++i) {
+        Gate gate = gates[i];
+    
+        vec2 flippedNodePos = vec2(gate.position.x, resolution.y - gate.position.y);
+
+        // Convert UV to rectangle space (centered at origin)
+        vec2 localPos = position - flippedNodePos;
+
+         // Compute SDF for rounded rectangle
+        float sdf = roundedBoxSDF(localPos, gate.halfSize, gate.radius);
+        
+        // Smooth edges for anti-aliasing
+        float alpha = smoothstep(0.5, -0.5, sdf);
+    
+        // Output final color
+        if (alpha > 0.5)
+            FragColor = vec4(gate.color.rgb, alpha);
     }
 }

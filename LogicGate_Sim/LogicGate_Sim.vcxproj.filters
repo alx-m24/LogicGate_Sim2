@@ -32,7 +32,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="src\Shaders\background.frag">
+    <None Include="src\Shaders\mainShader.frag">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

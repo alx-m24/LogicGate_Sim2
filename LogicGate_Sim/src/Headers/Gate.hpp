@@ -15,7 +15,8 @@ public:
 public:
 	bool contains(sf::Vector2f point);
 	void draw(sf::RenderWindow& window, sf::Vector2f origin, float spacing);
-
+	void setFillColor(sf::Color color) { circle.setFillColor(color); }
+	
 private:
 	sf::CircleShape circle;
 };
@@ -42,6 +43,8 @@ public:
 public:
 	void drawConnectors(sf::RenderWindow& window, float spacing);
 	void draw(sf::RenderWindow& window, float spacing);
+	void drawText(sf::RenderWindow& window, float spacing) const;
+	void setuniforms(sf::Shader& shader, std::string prefix, float spacing);
 	bool contains(sf::Vector2f point);
 	virtual void update() {};
 	virtual void resize(float spacing) {};

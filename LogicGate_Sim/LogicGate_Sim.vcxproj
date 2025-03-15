@@ -135,7 +135,7 @@
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="src\Shaders\background.frag">
+    <None Include="src\Shaders\mainShader.frag">
       <FileType>Document</FileType>
       <DeploymentContent>false</DeploymentContent>
     </None>
