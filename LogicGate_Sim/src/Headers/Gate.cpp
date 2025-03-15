@@ -68,9 +68,11 @@ void Gate::setuniforms(sf::Shader& shader, std::string prefix, float spacing)
 	else rect.setFillColor(color);
 
 	shader.setUniform(prefix + "color", sf::Vector3f(static_cast<sf::Uint8>(rect.getFillColor().r), static_cast<sf::Uint8>(rect.getFillColor().g), static_cast<sf::Uint8>(rect.getFillColor().b)) / 255.0f);
+	shader.setUniform(prefix + "outlineColor", sf::Vector3f(static_cast<sf::Uint8>(rect.getOutlineColor().r), static_cast<sf::Uint8>(rect.getOutlineColor().g), static_cast<sf::Uint8>(rect.getOutlineColor().b)) / 255.0f);
 	shader.setUniform(prefix + "position", position);
 	shader.setUniform(prefix + "halfSize", rect.getSize() / 2.0f);
 	shader.setUniform(prefix + "radius", spacing / 5.0f);
+	shader.setUniform(prefix + "outlineThickness", rect.getOutlineThickness());
 }
 
 bool Gate::contains(sf::Vector2f point)

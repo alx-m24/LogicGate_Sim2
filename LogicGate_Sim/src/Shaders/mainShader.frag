@@ -32,6 +32,8 @@ struct Gate {
     vec2 position;
     vec2 halfSize;
     float radius;
+    float outlineThickness;
+    vec3 outlineColor;
 };
 
 uniform Gate gates[MAXGATE_NUM];
@@ -125,8 +127,19 @@ void main() {
         // Smooth edges for anti-aliasing
         float alpha = smoothstep(0.5, -0.5, sdf);
     
-        // Output final color
-        if (alpha > 0.5)
-            FragColor = vec4(gate.color.rgb, alpha);
+         // Determine if we're inside the outline thickness
+        float insideOutline = sdf - gate.outlineThickness;
+
+        // If inside the outline range, use the outline color
+        if (sdf < 0.0) {
+            FragColor = vec4(gate.color.rgb, 1.0);
+        } else if (insideOutline < 0.0) {
+            FragColor = vec4(gate.outlineColor, 1.0); // Use outline color
+        } else {
+            // Smooth edge for fill color
+            float alpha = smoothstep(0.5, -0.5, sdf);
+            if (alpha > 0.0)
+                FragColor = vec4(gate.color.rgb, alpha);
+        }
     }
 }
