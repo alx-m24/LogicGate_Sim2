@@ -106,3 +106,34 @@ public:
 		inputs[1].localPosition.y = rect.getSize().y / 2.0f - spacing / 8.5f;
 	}
 };
+
+class OrGate : public Gate {
+public:
+	OrGate(float spacing, sf::Font& font) : Gate("OR", sf::Color(255, 169, 41), font) {
+		inputs.resize(2);
+		outputs.resize(1);
+
+		resize(spacing);
+	};
+
+public:
+	virtual void update() {
+		outputs[0].state = inputs[0].state || inputs[1].state;
+	}
+
+	virtual void resize(float spacing) {
+		spacing *= 1.5f;
+
+		rect.setSize(sf::Vector2f(spacing, spacing / 2.0f));
+		rect.setOrigin(rect.getSize() / 2.0f);
+		rect.setOutlineThickness(2.0f);
+		rect.setOutlineColor(sf::Color::Black);
+
+		inputs[0].localPosition.x = -rect.getSize().y;
+		inputs[1].localPosition.x = -rect.getSize().y;
+		outputs[0].localPosition.x = rect.getSize().y;
+
+		inputs[0].localPosition.y = -rect.getSize().y / 2.0f + spacing / 8.5f;
+		inputs[1].localPosition.y = rect.getSize().y / 2.0f - spacing / 8.5f;
+	}
+};

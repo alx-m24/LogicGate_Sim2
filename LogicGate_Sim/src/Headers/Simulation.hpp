@@ -23,7 +23,7 @@ inline sf::Vector2f clampToGrid(sf::Vector2f position, float gridSize) {
 class Simulation
 {
 public:
-	Simulation(std::string dirPath);
+	Simulation(std::string dirPath, unsigned int tickRate);
 
 private:
 	sf::Font arial;
@@ -39,6 +39,7 @@ private:
 	float spacing = 50.0f;
 
 private:
+	const unsigned int maxtickRate;
 	bool addingWire = false;
 	bool addedNodeLastFrame = false;
 	bool addedGateLastFrame = false;

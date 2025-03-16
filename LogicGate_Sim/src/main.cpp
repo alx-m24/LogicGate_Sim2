@@ -18,7 +18,7 @@ int main() {
 #pragma endregion
 
 #pragma region Objects
-	Simulation simulation(currentDir);
+	Simulation simulation(currentDir, 100u);
 	simulation.zoom(window);
 #pragma endregion
 
@@ -33,7 +33,7 @@ int main() {
 				window.close();
 				break;
 			case sf::Event::Resized:
-				window.setView(sf::View(sf::FloatRect(0.0f, 0.0f, window.getSize().x, window.getSize().y)));
+				window.setView(sf::View(sf::FloatRect(0.0f, 0.0f, static_cast<float>(window.getSize().x), static_cast<float>(window.getSize().y))));
 				break;
 			case sf::Event::MouseWheelScrolled:
 				simulation.gridSize -= event.mouseWheelScroll.delta;

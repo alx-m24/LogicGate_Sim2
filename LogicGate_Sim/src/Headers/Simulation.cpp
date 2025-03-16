@@ -1,6 +1,6 @@
 #include "Simulation.hpp"
 
-Simulation::Simulation(std::string dirPath)
+Simulation::Simulation(std::string dirPath, unsigned int maxtickRate) : maxtickRate(maxtickRate)
 {
 	shader.loadFromFile(dirPath + "\\Shaders\\mainShader.frag", sf::Shader::Fragment);
 	shader.setUniform("thickness", thickness);
@@ -18,7 +18,9 @@ void Simulation::update(sf::RenderWindow& window)
 #pragma region KeyBinds
 	if (ADD_GATE && !addedGateLastFrame) {
 		//gates.emplace_back(new NotGate(spacing, arial));
-		gates.emplace_back(new AndGate(spacing, arial));
+		//gates.emplace_back(new AndGate(spacing, arial));
+		gates.emplace_back(new OrGate(spacing, arial));
+
 		gates.back()->position = (sf::Vector2f(window.getSize()) / 2.0f) + getRandomOffset(-50.0f, 50.0f);
 	}
 	else if (ADD_NODE && !addedNodeLastFrame) {
@@ -27,8 +29,12 @@ void Simulation::update(sf::RenderWindow& window)
 		nodes.back()->position = (sf::Vector2f(window.getSize()) / 2.0f) + getRandomOffset(-50.0f, 50.0f);
 	}
 
-	addedNodeLastFrame = ADD_NODE;
+	if (SPACE) {
+		sf::Clock delay;
+		while (delay.getElapsedTime().asSeconds() < 1.0f);
+	}
 
+	addedNodeLastFrame = ADD_NODE;
 	addedGateLastFrame = ADD_GATE;
 #pragma endregion
 
@@ -239,8 +245,12 @@ void Simulation::update(sf::RenderWindow& window)
 	}
 #pragma endregion
 
-	for (Wire& wire : wires) wire.update();
-	for (Gate* gate : gates) gate->update();
+#pragma region Physics frames
+	for (unsigned int i = 0; i < std::min(static_cast<unsigned int>(gates.size() + 1), maxtickRate); ++i) {
+		for (Wire& wire : wires) wire.update();
+		for (Gate* gate : gates) gate->update();
+	}
+#pragma endregion
 }
 
 void Simulation::draw(sf::RenderWindow& window)
@@ -255,14 +265,14 @@ void Simulation::draw(sf::RenderWindow& window)
 	shader.setUniform("resolution", windowSize);
 	shader.setUniform("time", clock.getElapsedTime().asSeconds());
 
-	int nodeNum = nodes.size();
+	int nodeNum = static_cast<int>(nodes.size());
 	shader.setUniform("nodeNum", nodeNum);
 	for (int i = 0; i < nodeNum; ++i) {
 		std::string name = "nodes[" + std::to_string(i) + "].";
 		shader.setUniform(name + "state", nodes[i]->state);
 		shader.setUniform(name + "position", nodes[i]->position);
 	}
-	int wireNum = wires.size();
+	int wireNum = static_cast<int>(wires.size());
 	shader.setUniform("wireNum", wireNum);
 	for (int i = 0; i < wireNum; ++i) {
 		std::string name = "wires[" + std::to_string(i) + "].";
@@ -270,7 +280,7 @@ void Simulation::draw(sf::RenderWindow& window)
 		shader.setUniform(name + "p1", *wires[i].p1);
 		shader.setUniform(name + "p2", *wires[i].p2);
 	}
-	int gateNum = gates.size();
+	int gateNum = static_cast<int>(gates.size());
 	shader.setUniform("gateNum", gateNum);
 	for (int i = 0; i < gateNum; ++i) {
 		std::string name = "gates[" + std::to_string(i) + "].";
@@ -298,7 +308,7 @@ void Simulation::zoom(sf::RenderWindow& window)
 	else thickness = 2;
 #pragma endregion
 
-	sf::Vector2f viewCenter = sf::Vector2f(0.0f, window.getSize().y);
+	sf::Vector2f viewCenter = sf::Vector2f(0.0f, static_cast<float>(window.getSize().y));
 	for (Node* node : nodes) {
 		node->position = (node->position - viewCenter) * oldGridSize / gridSize + viewCenter;
 	}
