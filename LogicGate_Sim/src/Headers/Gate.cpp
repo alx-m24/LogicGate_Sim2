@@ -51,7 +51,11 @@ void Gate::drawText(sf::RenderWindow& window, float spacing) const
 	text.setFillColor(sf::Color::Black);
 	text.setString(name);
 	text.setCharacterSize(spacing / 2.0f);
-	text.setPosition(position - sf::Vector2f(spacing / 2.0f, spacing / 3.5f));
+
+	sf::Vector2f textSize = sf::Vector2f(text.getGlobalBounds().width, text.getGlobalBounds().height);
+
+	text.setOrigin(textSize.x / 2.0f, textSize.y / 1.25f);
+	text.setPosition(position);
 
 	window.draw(text);
 }
