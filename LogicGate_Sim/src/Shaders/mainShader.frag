@@ -12,6 +12,7 @@ uniform vec2 resolution;
 
 struct Node {
     vec2 position;
+    vec3 activeColor;
     bool state;
 };
 
@@ -21,6 +22,7 @@ uniform int nodeNum;
 struct Wire {
     vec2 p1;
     vec2 p2;
+    vec3 activeColor;
     bool state;
 };
 
@@ -76,7 +78,7 @@ void main() {
             float pulse = sin(time * 2.0) / 7.0 + (1.0 - 1.0 / 7.0);
             float intensity = smoothstep(0.0, 1.0, pulse * 0.9 / (normalizedDist * normalizedDist)); // Smoothed glow
 
-            vec3 glowColor = vec3(219.0, 22.0, 47.0) / 255.0 * intensity;
+            vec3 glowColor = node.activeColor / 255.0 * intensity;
             FragColor.rgb = min(FragColor.rgb + glowColor, vec3(1.0)); // Prevent overexposure
         }
     }
@@ -105,7 +107,7 @@ void main() {
 
             float intensity = smoothstep(0.0, 1.0, pulse / (distFromLine * distFromLine)); // Smoothed glow
 
-            vec3 glowColor = vec3(219.0, 22.0, 47.0) / 255.0 * intensity;
+            vec3 glowColor = wire.activeColor / 255.0 * intensity;
             FragColor.rgb = min(FragColor.rgb + glowColor, vec3(1.0)); // Prevent overexposure
         }
         else {

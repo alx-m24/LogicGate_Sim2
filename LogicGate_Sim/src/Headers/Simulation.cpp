@@ -13,13 +13,24 @@ Simulation::Simulation(std::string dirPath, unsigned int maxtickRate) : maxtickR
 	std::srand(static_cast<unsigned>(std::time(0)));
 }
 
+Simulation::~Simulation()
+{
+	for (Node* node : nodes) {
+		delete node;
+	}
+	for (Gate* gate : gates) {
+		delete gate;
+	}
+}
+
 void Simulation::update(sf::RenderWindow& window)
 {
 #pragma region KeyBinds
 	if (ADD_GATE && !addedGateLastFrame) {
-		//gates.emplace_back(new NotGate(spacing, arial));
+		gates.emplace_back(new NotGate(spacing, arial));
 		//gates.emplace_back(new AndGate(spacing, arial));
-		gates.emplace_back(new OrGate(spacing, arial));
+		//gates.emplace_back(new OrGate(spacing, arial));
+		//gates.emplace_back(new NOrGate(spacing, arial));
 
 		gates.back()->position = (sf::Vector2f(window.getSize()) / 2.0f) + getRandomOffset(-50.0f, 50.0f);
 	}
@@ -29,9 +40,10 @@ void Simulation::update(sf::RenderWindow& window)
 		nodes.back()->position = (sf::Vector2f(window.getSize()) / 2.0f) + getRandomOffset(-50.0f, 50.0f);
 	}
 
-	if (SPACE) {
+	slowed = SPACE;
+	if (slowed) {
 		sf::Clock delay;
-		while (delay.getElapsedTime().asSeconds() < 1.0f);
+		while (delay.getElapsedTime().asSeconds() < 0.75f);
 	}
 
 	addedNodeLastFrame = ADD_NODE;
@@ -41,25 +53,27 @@ void Simulation::update(sf::RenderWindow& window)
 #pragma region Mouse
 
 #pragma region Position
+	lastmousePos = mousePos;
 	mousePos = sf::Vector2f(sf::Mouse::getPosition(window));
 #pragma endregion
 
 #pragma region Left mouse btn
 	if (LEFTMOUSE && !lastLeft) {
-		for (int i = 0; i < nodes.size() && !movingObject; ++i) {
+		for (int i = nodes.size() - 1; i >= 0 && !movingObject; --i) {
 			if (nodes[i]->contains(mousePos)) {
 				movingObject = true;
 				movedNodeIdx = i;
 				break;
 			}
 		}
-		for (int i = 0; i < gates.size() && !movingObject; ++i) {
+		for (int i = gates.size() - 1; i >= 0 && !movingObject; --i) {
 			if (gates[i]->contains(mousePos)) {
 				movingObject = true;
 				movedGateIdx = i;
 				break;
 			}
 		}
+
 	}
 	if (lastLeft && !LEFTMOUSE) {
 		movingObject = false;
@@ -73,7 +87,7 @@ void Simulation::update(sf::RenderWindow& window)
 
 #pragma region Right Mouse btn
 	if (RIGHTMOUSE) {
-		for (int i = 0; i < nodes.size() && !movingObject; ++i) {
+		for (int i = nodes.size() - 1; i >= 0 && !movingObject; --i) {
 			if (nodes[i]->contains(mousePos)) {
 				nodes[i]->selected = true;
 				break;
@@ -246,9 +260,15 @@ void Simulation::update(sf::RenderWindow& window)
 #pragma endregion
 
 #pragma region Physics frames
-	for (unsigned int i = 0; i < std::min(static_cast<unsigned int>(gates.size() + 1), maxtickRate); ++i) {
+	if (slowed) {
 		for (Wire& wire : wires) wire.update();
 		for (Gate* gate : gates) gate->update();
+	}
+	else {
+		for (unsigned int i = 0; i < std::min(static_cast<unsigned int>(gates.size() + 1), maxtickRate); ++i) {
+			for (Wire& wire : wires) wire.update();
+			for (Gate* gate : gates) gate->update();
+		}
 	}
 #pragma endregion
 }
@@ -271,6 +291,7 @@ void Simulation::draw(sf::RenderWindow& window)
 		std::string name = "nodes[" + std::to_string(i) + "].";
 		shader.setUniform(name + "state", nodes[i]->state);
 		shader.setUniform(name + "position", nodes[i]->position);
+		shader.setUniform(name + "activeColor", sf::Vector3f(static_cast<sf::Uint8>(nodes[i]->activeColor.r), static_cast<sf::Uint8>(nodes[i]->activeColor.g), static_cast<sf::Uint8>(nodes[i]->activeColor.b)));
 	}
 	int wireNum = static_cast<int>(wires.size());
 	shader.setUniform("wireNum", wireNum);
@@ -279,6 +300,7 @@ void Simulation::draw(sf::RenderWindow& window)
 		shader.setUniform(name + "state", wires[i].getState());
 		shader.setUniform(name + "p1", *wires[i].p1);
 		shader.setUniform(name + "p2", *wires[i].p2);
+		shader.setUniform(name + "activeColor", sf::Vector3f(static_cast<sf::Uint8>(wires[i].activeColor.r), static_cast<sf::Uint8>(wires[i].activeColor.g), static_cast<sf::Uint8>(wires[i].activeColor.b)));
 	}
 	int gateNum = static_cast<int>(gates.size());
 	shader.setUniform("gateNum", gateNum);
@@ -308,7 +330,8 @@ void Simulation::zoom(sf::RenderWindow& window)
 	else thickness = 2;
 #pragma endregion
 
-	sf::Vector2f viewCenter = sf::Vector2f(0.0f, static_cast<float>(window.getSize().y));
+	//sf::Vector2f viewCenter = sf::Vector2f(0.0, static_cast<float>(window.getSize().y)) + sf::Vector2f(sf::Mouse::getPosition(window));
+	sf::Vector2f viewCenter = mousePos;
 	for (Node* node : nodes) {
 		node->position = (node->position - viewCenter) * oldGridSize / gridSize + viewCenter;
 	}
@@ -319,4 +342,33 @@ void Simulation::zoom(sf::RenderWindow& window)
 	}
 
 	oldGridSize = gridSize;
+}
+
+void Simulation::addGate(std::string gate, sf::RenderWindow& window)
+{
+	if (gate == "NOT") gates.emplace_back(new NotGate(spacing, arial));
+	if (gate == "AND") gates.emplace_back(new AndGate(spacing, arial));
+	if (gate == "OR") gates.emplace_back(new OrGate(spacing, arial));
+	if (gate == "XOR") gates.emplace_back(new XOrGate(spacing, arial));
+
+	gates.back()->position = (sf::Vector2f(window.getSize()) / 2.0f) + getRandomOffset(-50.0f, 50.0f);
+}
+
+void Simulation::addNode(sf::RenderWindow& window)
+{
+	nodes.emplace_back(new Node());
+	nodes.back()->state = false;
+	nodes.back()->position = (sf::Vector2f(window.getSize()) / 2.0f) + getRandomOffset(-50.0f, 50.0f);
+}
+
+std::vector<Gate> Simulation::getGates()
+{
+	std::vector<Gate> gates;
+
+	gates.emplace_back(NotGate(spacing, arial));
+	gates.emplace_back(AndGate(spacing, arial));
+	gates.emplace_back(OrGate(spacing, arial));
+	gates.emplace_back(XOrGate(spacing, arial));
+
+	return gates;
 }

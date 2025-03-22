@@ -8,6 +8,7 @@ public:
 	bool state = false;
 	bool selected = false;
 	sf::Vector2f position;
+	sf::Color activeColor = sf::Color(219, 22, 47);
 
 private:
 	sf::CircleShape circle;

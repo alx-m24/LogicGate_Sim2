@@ -143,6 +143,7 @@
   <ItemGroup>
     <ClInclude Include="resource.h" />
     <ClInclude Include="src\Headers\Gate.hpp" />
+    <ClInclude Include="src\Headers\gui\Style\myStyle.hpp" />
     <ClInclude Include="src\Headers\KeyBinds\KeyBinds.hpp" />
     <ClInclude Include="src\Headers\Node.hpp" />
     <ClInclude Include="src\Headers\Object.hpp" />

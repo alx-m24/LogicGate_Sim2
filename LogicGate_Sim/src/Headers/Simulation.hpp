@@ -2,6 +2,7 @@
 #include <SFML/Graphics.hpp>
 #include <vector>
 #include <iostream>
+#include <unordered_map>
 #include "Node.hpp"
 #include "Gate.hpp"
 #include "Wire.hpp"
@@ -24,12 +25,15 @@ class Simulation
 {
 public:
 	Simulation(std::string dirPath, unsigned int tickRate);
+	~Simulation();
 
 private:
 	sf::Font arial;
 	sf::Clock clock;
 	sf::Shader shader;
 	sf::Vector2f mousePos;
+	sf::Vector2f lastmousePos;
+	sf::Vector2f viewCenter;
 
 public:
 	float gridSize = 10.0f;
@@ -40,6 +44,7 @@ private:
 
 private:
 	const unsigned int maxtickRate;
+	bool slowed = false;
 	bool addingWire = false;
 	bool addedNodeLastFrame = false;
 	bool addedGateLastFrame = false;
@@ -61,5 +66,8 @@ public:
 	void update(sf::RenderWindow& window);
 	void draw(sf::RenderWindow& window);
 	void zoom(sf::RenderWindow& window);
+	void addGate(std::string gate, sf::RenderWindow& window);
+	void addNode(sf::RenderWindow& window);
+	std::vector<Gate> getGates();
 };
 

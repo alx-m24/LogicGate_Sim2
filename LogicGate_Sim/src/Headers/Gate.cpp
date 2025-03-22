@@ -81,5 +81,14 @@ void Gate::setuniforms(sf::Shader& shader, std::string prefix, float spacing)
 
 bool Gate::contains(sf::Vector2f point)
 {
-	return rect.getGlobalBounds().contains(point);
+	if (rect.getGlobalBounds().contains(point)) return true;
+
+	for (Connector& input : inputs) {
+		if (input.contains(point)) return true;
+	}
+	for (Connector& output : outputs) {
+		if (output.contains(point)) return true;
+	}
+
+	return false;
 }
