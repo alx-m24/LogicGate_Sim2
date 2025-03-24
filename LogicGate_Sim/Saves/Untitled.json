@@ -1,0 +1,189 @@
+{
+    "ComponentNum": 22,
+    "GateNum": 5,
+    "Gates": [
+        {
+            "Name": "XOR",
+            "Position": [
+                750.0,
+                390.0
+            ]
+        },
+        {
+            "Name": "XOR",
+            "Position": [
+                990.0,
+                450.0
+            ]
+        },
+        {
+            "Name": "AND",
+            "Position": [
+                918.0,
+                720.0
+            ]
+        },
+        {
+            "Name": "AND",
+            "Position": [
+                915.0,
+                651.0
+            ]
+        },
+        {
+            "Name": "OR",
+            "Position": [
+                1114.0,
+                699.0
+            ]
+        }
+    ],
+    "InputNode": [
+        2,
+        3,
+        4
+    ],
+    "InputNodeNum": 3,
+    "NodeNum": 5,
+    "Nodes": [
+        {
+            "Position": [
+                1290.0,
+                690.0
+            ],
+            "State": false
+        },
+        {
+            "Position": [
+                1290.0,
+                450.0
+            ],
+            "State": false
+        },
+        {
+            "Position": [
+                489.0,
+                727.0
+            ],
+            "State": false
+        },
+        {
+            "Position": [
+                510.0,
+                450.0
+            ],
+            "State": false
+        },
+        {
+            "Position": [
+                510.0,
+                330.0
+            ],
+            "State": false
+        }
+    ],
+    "OutputNode": [
+        0,
+        1
+    ],
+    "OutputNodeNum": 2,
+    "WireNum": 12,
+    "Wires": [
+        {
+            "OutputConnectorIdx": 0,
+            "gateInputIdx": -1,
+            "gateOutputIdx": 0,
+            "inputConnectorIdx": -1,
+            "inputNodeIdx": 4,
+            "outputNodeIdx": -1
+        },
+        {
+            "OutputConnectorIdx": 1,
+            "gateInputIdx": -1,
+            "gateOutputIdx": 0,
+            "inputConnectorIdx": -1,
+            "inputNodeIdx": 3,
+            "outputNodeIdx": -1
+        },
+        {
+            "OutputConnectorIdx": 0,
+            "gateInputIdx": 0,
+            "gateOutputIdx": 1,
+            "inputConnectorIdx": 0,
+            "inputNodeIdx": -1,
+            "outputNodeIdx": -1
+        },
+        {
+            "OutputConnectorIdx": 1,
+            "gateInputIdx": -1,
+            "gateOutputIdx": 1,
+            "inputConnectorIdx": -1,
+            "inputNodeIdx": 2,
+            "outputNodeIdx": -1
+        },
+        {
+            "OutputConnectorIdx": -1,
+            "gateInputIdx": 1,
+            "gateOutputIdx": -1,
+            "inputConnectorIdx": 0,
+            "inputNodeIdx": -1,
+            "outputNodeIdx": 1
+        },
+        {
+            "OutputConnectorIdx": 0,
+            "gateInputIdx": 3,
+            "gateOutputIdx": 4,
+            "inputConnectorIdx": 0,
+            "inputNodeIdx": -1,
+            "outputNodeIdx": -1
+        },
+        {
+            "OutputConnectorIdx": 1,
+            "gateInputIdx": 2,
+            "gateOutputIdx": 4,
+            "inputConnectorIdx": 0,
+            "inputNodeIdx": -1,
+            "outputNodeIdx": -1
+        },
+        {
+            "OutputConnectorIdx": -1,
+            "gateInputIdx": 4,
+            "gateOutputIdx": -1,
+            "inputConnectorIdx": 0,
+            "inputNodeIdx": -1,
+            "outputNodeIdx": 0
+        },
+        {
+            "OutputConnectorIdx": 0,
+            "gateInputIdx": -1,
+            "gateOutputIdx": 3,
+            "inputConnectorIdx": -1,
+            "inputNodeIdx": 4,
+            "outputNodeIdx": -1
+        },
+        {
+            "OutputConnectorIdx": 1,
+            "gateInputIdx": -1,
+            "gateOutputIdx": 3,
+            "inputConnectorIdx": -1,
+            "inputNodeIdx": 3,
+            "outputNodeIdx": -1
+        },
+        {
+            "OutputConnectorIdx": 0,
+            "gateInputIdx": 0,
+            "gateOutputIdx": 2,
+            "inputConnectorIdx": 0,
+            "inputNodeIdx": -1,
+            "outputNodeIdx": -1
+        },
+        {
+            "OutputConnectorIdx": 1,
+            "gateInputIdx": -1,
+            "gateOutputIdx": 2,
+            "inputConnectorIdx": -1,
+            "inputNodeIdx": 2,
+            "outputNodeIdx": -1
+        }
+    ]
+}

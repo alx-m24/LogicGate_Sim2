@@ -1,8 +1,8 @@
 #version 430 core
 
-#define MAXNODE_NUM 64
-#define MAXWIRE_NUM 64
-#define MAXGATE_NUM 64
+#define MAXNODE_NUM 100
+#define MAXWIRE_NUM 100
+#define MAXGATE_NUM 100
 
 out vec4 FragColor;
 uniform float spacing;
@@ -67,7 +67,7 @@ void main() {
     }
 
     // Node glow
-    for (int i = 0; i < nodeNum; ++i) {
+    for (int i = 0; i < min(nodeNum, MAXNODE_NUM); ++i) {
         Node node = nodes[i];
         if (node.state) {
             float nodeRadius = spacing / 2.0;
@@ -75,7 +75,7 @@ void main() {
             float distFromNode = max(distance(position, flippedNodePos), 0.001); // Avoid division by zero
             float normalizedDist = distFromNode / nodeRadius;
 
-            float pulse = sin(time * 2.0) / 7.0 + (1.0 - 1.0 / 7.0);
+            float pulse = sin(time * 2.0 + i * 10) / 7.0 + (1.0 - 1.0 / 7.0);
             float intensity = smoothstep(0.0, 1.0, pulse * 0.9 / (normalizedDist * normalizedDist)); // Smoothed glow
 
             vec3 glowColor = node.activeColor / 255.0 * intensity;
@@ -83,7 +83,7 @@ void main() {
         }
     }
     // Wire
-    for (int i = 0; i < wireNum; ++i) {
+    for (int i = 0; i < min(wireNum, MAXWIRE_NUM); ++i) {
         Wire wire = wires[i];
         vec2 p1 = vec2(wire.p1.x, resolution.y - wire.p1.y);
         vec2 p2 = vec2(wire.p2.x, resolution.y - wire.p2.y);
@@ -115,7 +115,7 @@ void main() {
         }
     }
     // Gate
-    for (int i = 0; i < gateNum; ++i) {
+    for (int i = 0; i < min(gateNum, MAXGATE_NUM); ++i) {
         Gate gate = gates[i];
     
         vec2 flippedNodePos = vec2(gate.position.x, resolution.y - gate.position.y);

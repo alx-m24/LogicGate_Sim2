@@ -3,6 +3,7 @@
 #include <iostream>
 #include <imgui.h>
 #include <imgui-SFML.h>
+#include <imgui_stdlib.h>
 #include "Headers/Simulation.hpp"
 #include "Headers/gui/Style/myStyle.hpp"
 
@@ -17,7 +18,7 @@ int main() {
 	sf::RenderWindow window(sf::VideoMode(1000, 600), "LogicGate Simulator", sf::Style::Default, settings);
 	window.setVerticalSyncEnabled(true);
 
-	std::string currentDir = fs::current_path().string() + "\\src";
+	std::string currentDir = fs::current_path().string();
 
 	// Initialize ImGui-SFML
 	ImGui::SFML::Init(window);
@@ -25,12 +26,16 @@ int main() {
 #pragma endregion
 
 #pragma region Objects
-	Simulation simulation(currentDir, 100u);
+	Simulation simulation(currentDir + "\\src", 100u);
 	simulation.zoom(window);
+
+	//Components components = simulation.getComponents();
+	//load(currentDir + "\\Saves\\Untitled.json", components, simulation.spacing, simulation.arial);
 #pragma endregion
 
 #pragma region Main loop
 	sf::Clock deltaClock;
+	std::string name = "Untitled";
 	while (window.isOpen()) {
 #pragma region Input
 		sf::Event event;
@@ -64,19 +69,17 @@ int main() {
 		ImGui::SFML::Update(window, deltaClock.restart());
 		simulation.update(window);
 
+		static bool addElementcollapsed;
+		float addElementHeight = (addElementcollapsed) ? (float)window.getSize().y - ImGui::GetFrameHeight() : (float)window.getSize().y - 100;
 		{
-			static bool collapsed;
-
 			ImGui::SetNextWindowSize({ (float)window.getSize().x, 100 });
-
-			if (!collapsed) ImGui::SetNextWindowPos(ImVec2(0, (float)window.getSize().y - 100));
-			else ImGui::SetNextWindowPos(ImVec2(0, (float)window.getSize().y - ImGui::GetFrameHeight()));
+			ImGui::SetNextWindowPos(ImVec2(0, addElementHeight));
 
 			ImGui::Begin("Add elements", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
 
-			collapsed = ImGui::IsWindowCollapsed();
+			addElementcollapsed = ImGui::IsWindowCollapsed();
 
-			if (!collapsed) {
+			if (!addElementcollapsed) {
 				if (ImGui::Button("Node")) {
 					simulation.addNode(window);
 				}
@@ -90,6 +93,47 @@ int main() {
 					}
 				}
 			}
+			ImGui::End();
+		}
+
+		{
+			ImGui::SetNextWindowPos({ 0, 0 });
+			ImGui::Begin("Circuit", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize);
+
+			ImGui::Text(simulation.analyze().c_str());
+
+
+			if (ImGui::Button("Import")) {
+				Components components = simulation.getComponents();
+				//load(currentDir + "\\Saves\\4Bit-Adder.json", components, simulation.spacing, simulation.arial);
+				load(currentDir + "\\Saves\\4Bit-Adder.json", components, simulation.spacing, simulation.arial);
+			}
+			if (ImGui::Button("Import As Gate")) {
+				Components components = simulation.getComponents();
+				//loadasCustom(currentDir + "\\Saves\\4Bit-Adder.json", components, simulation.spacing, simulation.arial);
+				loadasCustom(currentDir + "\\Saves\\4Bit-Adder.json", components, simulation.spacing, simulation.arial);
+			}
+
+			ImGui::End();
+		}
+
+		static bool chipPreviewcollapsed;
+		float chipPreviewHeight = (chipPreviewcollapsed) ? addElementHeight - ImGui::GetFrameHeight() : addElementHeight - 100;
+		{
+			ImGui::SetNextWindowSize({ 150, 100 });
+			ImGui::SetNextWindowPos({ (float)window.getSize().x - 150, chipPreviewHeight});
+			ImGui::Begin("Chip preview", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize);
+
+			ImGui::InputText("Name", &name, ImGuiInputTextFlags_::ImGuiInputTextFlags_AutoSelectAll);
+
+			if (ImGui::Button("Create")) {
+				std::cout << name << std::endl;
+				save(currentDir + "\\Saves\\" + name + ".json", simulation.getComponents());
+				name = "Untitled";
+			}
+
+			chipPreviewcollapsed = ImGui::IsWindowCollapsed();
+
 			ImGui::End();
 		}
 #pragma endregion

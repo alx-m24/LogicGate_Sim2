@@ -1,0 +1,81 @@
+{
+    "ComponentNum": 8,
+    "GateNum": 1,
+    "Gates": [
+        {
+            "Name": "Adder",
+            "Position": [
+                394.0,
+                344.0
+            ]
+        }
+    ],
+    "InputNode": [
+        1,
+        2
+    ],
+    "InputNodeNum": 2,
+    "NodeNum": 4,
+    "Nodes": [
+        {
+            "Position": [
+                533.0,
+                334.0
+            ],
+            "State": false
+        },
+        {
+            "Position": [
+                246.0,
+                330.0
+            ],
+            "State": false
+        },
+        {
+            "Position": [
+                222.0,
+                325.0
+            ],
+            "State": false
+        },
+        {
+            "Position": [
+                653.0,
+                325.0
+            ],
+            "State": false
+        }
+    ],
+    "OutputNode": [
+        0,
+        3
+    ],
+    "OutputNodeNum": 2,
+    "WireNum": 3,
+    "Wires": [
+        {
+            "OutputConnectorIdx": -1,
+            "gateInputIdx": -1,
+            "gateOutputIdx": -1,
+            "inputConnectorIdx": -1,
+            "inputNodeIdx": 1,
+            "outputNodeIdx": 0
+        },
+        {
+            "OutputConnectorIdx": 0,
+            "gateInputIdx": -1,
+            "gateOutputIdx": 0,
+            "inputConnectorIdx": -1,
+            "inputNodeIdx": 2,
+            "outputNodeIdx": -1
+        },
+        {
+            "OutputConnectorIdx": -1,
+            "gateInputIdx": 0,
+            "gateOutputIdx": -1,
+            "inputConnectorIdx": 0,
+            "inputNodeIdx": -1,
+            "outputNodeIdx": 3
+        }
+    ]
+}

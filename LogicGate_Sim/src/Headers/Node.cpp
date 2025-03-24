@@ -2,6 +2,8 @@
 
 void Node::draw(sf::RenderWindow& window, float radius)
 {
+	if (!shouldDraw) return;
+
 	circle.setRadius(radius);
 
 	circle.setFillColor(state ? sf::Color(209, 0, 0) : sf::Color::White);

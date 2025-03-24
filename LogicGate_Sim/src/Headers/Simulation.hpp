@@ -1,12 +1,13 @@
 #pragma once
-#include <SFML/Graphics.hpp>
-#include <vector>
-#include <iostream>
-#include <unordered_map>
-#include "Node.hpp"
+#include "CircuitFileHandler.hpp"
 #include "Gate.hpp"
-#include "Wire.hpp"
 #include "KeyBinds/KeyBinds.hpp"
+#include "Node.hpp"
+#include "Wire.hpp"
+#include <iostream>
+#include <SFML/Graphics.hpp>
+#include <unordered_map>
+#include <vector>
 
 inline sf::Vector2f getRandomOffset(float minOffset, float maxOffset) {
 	float offsetX = minOffset + static_cast<float>(std::rand()) / (static_cast<float>(RAND_MAX) / (maxOffset - minOffset));
@@ -21,14 +22,16 @@ inline sf::Vector2f clampToGrid(sf::Vector2f position, float gridSize) {
 	);
 }
 
+
 class Simulation
 {
 public:
 	Simulation(std::string dirPath, unsigned int tickRate);
 	~Simulation();
 
-private:
+public:
 	sf::Font arial;
+private:
 	sf::Clock clock;
 	sf::Shader shader;
 	sf::Vector2f mousePos;
@@ -40,6 +43,8 @@ public:
 
 private:
 	int thickness = 2;
+
+public:
 	float spacing = 50.0f;
 
 private:
@@ -69,5 +74,7 @@ public:
 	void addGate(std::string gate, sf::RenderWindow& window);
 	void addNode(sf::RenderWindow& window);
 	std::vector<Gate> getGates();
+	std::string analyze();
+	Components getComponents();
 };
 

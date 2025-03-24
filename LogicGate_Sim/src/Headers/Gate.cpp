@@ -38,18 +38,16 @@ void Gate::drawConnectors(sf::RenderWindow& window, float spacing)
 
 void Gate::draw(sf::RenderWindow& window, float spacing)
 {
+	if (!shouldDraw) return;
+
 	drawConnectors(window, spacing);
 	drawText(window, spacing);
 
 	isSelected = false;
 }
 
-void Gate::drawText(sf::RenderWindow& window, float spacing) const
+void Gate::drawText(sf::RenderWindow& window, float spacing)
 {
-	sf::Text text;
-	text.setFont(font);
-	text.setFillColor(sf::Color::Black);
-	text.setString(name);
 	text.setCharacterSize(spacing / 2.0f);
 
 	sf::Vector2f textSize = sf::Vector2f(text.getGlobalBounds().width, text.getGlobalBounds().height);

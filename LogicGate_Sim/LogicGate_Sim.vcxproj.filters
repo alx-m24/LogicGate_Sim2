@@ -30,9 +30,18 @@
     <ClCompile Include="src\Headers\Gate.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Headers\CircuitFileHandler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\Shaders\mainShader.frag">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Saves\test.json">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Saves\Untitled.json">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>
@@ -59,6 +68,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Headers\gui\Style\myStyle.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Headers\CircuitFileHandler.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

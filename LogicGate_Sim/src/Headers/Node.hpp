@@ -7,6 +7,7 @@ class Node
 public:
 	bool state = false;
 	bool selected = false;
+	bool shouldDraw = true;
 	sf::Vector2f position;
 	sf::Color activeColor = sf::Color(219, 22, 47);
 

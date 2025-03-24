@@ -27,12 +27,6 @@ void Simulation::update(sf::RenderWindow& window)
 {
 #pragma region KeyBinds
 	if (ADD_GATE && !addedGateLastFrame) {
-		gates.emplace_back(new NotGate(spacing, arial));
-		//gates.emplace_back(new AndGate(spacing, arial));
-		//gates.emplace_back(new OrGate(spacing, arial));
-		//gates.emplace_back(new NOrGate(spacing, arial));
-
-		gates.back()->position = (sf::Vector2f(window.getSize()) / 2.0f) + getRandomOffset(-50.0f, 50.0f);
 	}
 	else if (ADD_NODE && !addedNodeLastFrame) {
 		nodes.emplace_back(new Node());
@@ -60,14 +54,14 @@ void Simulation::update(sf::RenderWindow& window)
 #pragma region Left mouse btn
 	if (LEFTMOUSE && !lastLeft) {
 		for (int i = nodes.size() - 1; i >= 0 && !movingObject; --i) {
-			if (nodes[i]->contains(mousePos)) {
+			if (nodes[i]->contains(mousePos) && nodes[i]->shouldDraw) {
 				movingObject = true;
 				movedNodeIdx = i;
 				break;
 			}
 		}
 		for (int i = gates.size() - 1; i >= 0 && !movingObject; --i) {
-			if (gates[i]->contains(mousePos)) {
+			if (gates[i]->contains(mousePos) && gates[i]->shouldDraw) {
 				movingObject = true;
 				movedGateIdx = i;
 				break;
@@ -88,7 +82,7 @@ void Simulation::update(sf::RenderWindow& window)
 #pragma region Right Mouse btn
 	if (RIGHTMOUSE) {
 		for (int i = nodes.size() - 1; i >= 0 && !movingObject; --i) {
-			if (nodes[i]->contains(mousePos)) {
+			if (nodes[i]->contains(mousePos) && nodes[i]->shouldDraw) {
 				nodes[i]->selected = true;
 				break;
 			}
@@ -97,7 +91,7 @@ void Simulation::update(sf::RenderWindow& window)
 	// Just released the right mouse btn
 	else if (lastRight) {
 		for (int i = 0; i < nodes.size() && !movingObject; ++i) {
-			if (nodes[i]->contains(mousePos)) {
+			if (nodes[i]->contains(mousePos) && nodes[i]->shouldDraw) {
 				nodes[i]->state = !nodes[i]->state;
 				break;
 			}
@@ -111,12 +105,13 @@ void Simulation::update(sf::RenderWindow& window)
 	if (!addingWire) {
 		if (MIDDLEMOUSE) {
 			for (int i = 0; i < nodes.size() && !movingObject; ++i) {
-				if (nodes[i]->contains(mousePos)) {
+				if (nodes[i]->contains(mousePos) && nodes[i]->shouldDraw) {
 					nodes[i]->selected = true;
 					break;
 				}
 			}
 			for (int i = 0; i < gates.size() && !movingObject; ++i) {
+				if (!gates[i]->shouldDraw) continue;
 				for (Connector& connector : gates[i]->inputs) {
 					if (connector.contains(mousePos)) {
 						gates[i]->isSelected = true;
@@ -134,7 +129,7 @@ void Simulation::update(sf::RenderWindow& window)
 		// Just released the middle mouse btn
 		else if (lastMid) {
 			for (int i = 0; i < nodes.size() && !movingObject; ++i) {
-				if (nodes[i]->contains(mousePos)) {
+				if (nodes[i]->contains(mousePos) && nodes[i]->shouldDraw) {
 					addingWire = true;
 
 					wires.emplace_back(Wire(&(nodes[i]->position), &mousePos));
@@ -145,6 +140,7 @@ void Simulation::update(sf::RenderWindow& window)
 				}
 			}
 			for (int i = 0; i < gates.size() && !movingObject; ++i) {
+				if (!gates[i]->shouldDraw) continue;
 				for (Connector& connector : gates[i]->inputs) {
 					if (connector.contains(mousePos)) {
 						addingWire = true;
@@ -171,12 +167,13 @@ void Simulation::update(sf::RenderWindow& window)
 	else {
 		if (MIDDLEMOUSE) {
 			for (int i = 0; i < nodes.size() && !movingObject; ++i) {
-				if (nodes[i]->contains(mousePos)) {
+				if (nodes[i]->contains(mousePos) && nodes[i]->shouldDraw) {
 					nodes[i]->selected = true;
 					break;
 				}
 			}
 			for (int i = 0; i < gates.size() && !movingObject; ++i) {
+				if (!gates[i]->shouldDraw) continue;
 				for (Connector connector : gates[i]->inputs) {
 					if (connector.contains(mousePos)) {
 						gates[i]->isSelected = true;
@@ -196,7 +193,7 @@ void Simulation::update(sf::RenderWindow& window)
 			addingWire = false;
 			bool addedWire = false;
 			for (int i = 0; i < nodes.size() && !movingObject; ++i) {
-				if (nodes[i]->contains(mousePos)) {
+				if (nodes[i]->contains(mousePos) && nodes[i]->shouldDraw) {
 					wires.back().p2 = &(nodes[i]->position);
 
 					void* tempPtr = &(*nodes[i]);
@@ -207,6 +204,7 @@ void Simulation::update(sf::RenderWindow& window)
 				}
 			}
 			for (int i = 0; i < gates.size() && !movingObject; ++i) {
+				if (!gates[i]->shouldDraw) continue;
 				for (Connector& connector : gates[i]->inputs) {
 					if (connector.contains(mousePos)) {
 						wires.back().p2 = &connector.gloabalPosition;
@@ -285,29 +283,43 @@ void Simulation::draw(sf::RenderWindow& window)
 	shader.setUniform("resolution", windowSize);
 	shader.setUniform("time", clock.getElapsedTime().asSeconds());
 
-	int nodeNum = static_cast<int>(nodes.size());
+	int nodeNum = 0;
+	for (Node* node : nodes) {
+		if (!node->shouldDraw) continue;
+
+		std::string name = "nodes[" + std::to_string(nodeNum) + "].";
+		shader.setUniform(name + "state", node->state);
+		shader.setUniform(name + "position", node->position);
+		shader.setUniform(name + "activeColor", sf::Vector3f(static_cast<sf::Uint8>(node->activeColor.r), static_cast<sf::Uint8>(node->activeColor.g), static_cast<sf::Uint8>(node->activeColor.b)));
+
+		++nodeNum;
+	}
 	shader.setUniform("nodeNum", nodeNum);
-	for (int i = 0; i < nodeNum; ++i) {
-		std::string name = "nodes[" + std::to_string(i) + "].";
-		shader.setUniform(name + "state", nodes[i]->state);
-		shader.setUniform(name + "position", nodes[i]->position);
-		shader.setUniform(name + "activeColor", sf::Vector3f(static_cast<sf::Uint8>(nodes[i]->activeColor.r), static_cast<sf::Uint8>(nodes[i]->activeColor.g), static_cast<sf::Uint8>(nodes[i]->activeColor.b)));
+
+	int wireNum = 0;
+	for (const Wire& wire : wires) {
+		if (!wire.shouldDraw) continue;
+
+		std::string name = "wires[" + std::to_string(wireNum) + "].";
+		shader.setUniform(name + "state", wire.getState());
+		shader.setUniform(name + "p1", *wire.p1);
+		shader.setUniform(name + "p2", *wire.p2);
+		shader.setUniform(name + "activeColor", sf::Vector3f(static_cast<sf::Uint8>(wire.activeColor.r), static_cast<sf::Uint8>(wire.activeColor.g), static_cast<sf::Uint8>(wire.activeColor.b)));
+
+		++wireNum;
 	}
-	int wireNum = static_cast<int>(wires.size());
 	shader.setUniform("wireNum", wireNum);
-	for (int i = 0; i < wireNum; ++i) {
-		std::string name = "wires[" + std::to_string(i) + "].";
-		shader.setUniform(name + "state", wires[i].getState());
-		shader.setUniform(name + "p1", *wires[i].p1);
-		shader.setUniform(name + "p2", *wires[i].p2);
-		shader.setUniform(name + "activeColor", sf::Vector3f(static_cast<sf::Uint8>(wires[i].activeColor.r), static_cast<sf::Uint8>(wires[i].activeColor.g), static_cast<sf::Uint8>(wires[i].activeColor.b)));
+
+	int gateNum = 0;
+	for (Gate* gate : gates) {
+		if (!gate->shouldDraw) continue;
+
+		std::string name = "gates[" + std::to_string(gateNum) + "].";
+		gate->setuniforms(shader, name, spacing);
+
+		++gateNum;
 	}
-	int gateNum = static_cast<int>(gates.size());
 	shader.setUniform("gateNum", gateNum);
-	for (int i = 0; i < gateNum; ++i) {
-		std::string name = "gates[" + std::to_string(i) + "].";
-		gates[i]->setuniforms(shader, name, spacing);
-	}
 
 	window.draw(background, &shader);
 #pragma endregion
@@ -371,4 +383,14 @@ std::vector<Gate> Simulation::getGates()
 	gates.emplace_back(XOrGate(spacing, arial));
 
 	return gates;
+}
+
+std::string Simulation::analyze()
+{
+	return toString(analyzeCircuit(getComponents()));
+}
+
+Components Simulation::getComponents()
+{
+	return Components{ nodes, gates, wires };
 }

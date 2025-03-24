@@ -6,6 +6,7 @@ class Wire
 public:
 	bool* input = nullptr;
 	bool* output = nullptr;
+	bool shouldDraw = true;
 
 public:
 	sf::Vector2f* p1;
