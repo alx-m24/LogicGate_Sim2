@@ -155,6 +155,7 @@
         2
     ],
     "InputNodeNum": 9,
+    "Name": "4Bit-Adder",
     "NodeNum": 34,
     "Nodes": [
         {

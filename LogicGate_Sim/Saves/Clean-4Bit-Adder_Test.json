@@ -1,0 +1,250 @@
+{
+    "ComponentNum": 152,
+    "GateNum": 25,
+    "Gates": [
+        {
+            "Name": "Clean-4Bit-Adder",
+            "Position": [
+                976.7777709960938,
+                530.3888549804688
+            ]
+        }
+    ],
+    "InputNode": [
+        34,
+        35,
+        42,
+        39,
+        37,
+        41,
+        38,
+        40,
+        36
+    ],
+    "InputNodeNum": 9,
+    "Name": "Clean-4Bit-Adder_Test",
+    "NodeNum": 48,
+    "Nodes": [
+        {
+            "Position": [
+                588.5833129882813,
+                308.3055419921875
+            ],
+            "State": true
+        },
+        {
+            "Position": [
+                588.5833129882813,
+                364.3611145019531
+            ],
+            "State": true
+        },
+        {
+            "Position": [
+                588.5833129882813,
+                868.8611450195313
+            ],
+            "State": true
+        },
+        {
+            "Position": [
+                588.5833129882813,
+                588.5833129882813
+            ],
+            "State": false
+        },
+        {
+            "Position": [
+                588.5833129882813,
+                700.6944580078125
+            ],
+            "State": false
+        },
+        {
+            "Position": [
+                588.5833129882813,
+                476.47222900390625
+            ],
+            "State": false
+        },
+        {
+            "Position": [
+                588.5833129882813,
+                756.75
+            ],
+            "State": true
+        },
+        {
+            "Position": [
+                588.5833129882813,
+                644.638916015625
+            ],
+            "State": false
+        },
+        {
+            "Position": [
+                588.5833129882813,
+                420.41668701171875
+            ],
+            "State": true
+        },
+        {
+            "Position": [
+                1317.3056640625,
+                532.5277709960938
+            ],
+            "State": false
+        },
+        {
+            "Position": [
+                1317.3056640625,
+                476.47222900390625
+            ],
+            "State": false
+        },
+        {
+            "Position": [
+                1317.3056640625,
+                700.6944580078125
+            ],
+            "State": true
+        },
+        {
+            "Position": [
+                1317.3056640625,
+                588.5833129882813
+            ],
+            "State": false
+        },
+        {
+            "Position": [
+                1317.3056640625,
+                420.41668701171875
+            ],
+            "State": false
+        }
+    ],
+    "OutputNode": [
+        47,
+        44,
+        43,
+        46,
+        45
+    ],
+    "OutputNodeNum": 5,
+    "WireNum": 79,
+    "Wires": [
+        {
+            "OutputConnectorIdx": 0,
+            "gateInputIdx": -1,
+            "gateOutputIdx": 24,
+            "inputConnectorIdx": -1,
+            "inputNodeIdx": 34,
+            "outputNodeIdx": -1
+        },
+        {
+            "OutputConnectorIdx": 1,
+            "gateInputIdx": -1,
+            "gateOutputIdx": 24,
+            "inputConnectorIdx": -1,
+            "inputNodeIdx": 35,
+            "outputNodeIdx": -1
+        },
+        {
+            "OutputConnectorIdx": 2,
+            "gateInputIdx": -1,
+            "gateOutputIdx": 24,
+            "inputConnectorIdx": -1,
+            "inputNodeIdx": 42,
+            "outputNodeIdx": -1
+        },
+        {
+            "OutputConnectorIdx": 3,
+            "gateInputIdx": -1,
+            "gateOutputIdx": 24,
+            "inputConnectorIdx": -1,
+            "inputNodeIdx": 39,
+            "outputNodeIdx": -1
+        },
+        {
+            "OutputConnectorIdx": 4,
+            "gateInputIdx": -1,
+            "gateOutputIdx": 24,
+            "inputConnectorIdx": -1,
+            "inputNodeIdx": 37,
+            "outputNodeIdx": -1
+        },
+        {
+            "OutputConnectorIdx": 5,
+            "gateInputIdx": -1,
+            "gateOutputIdx": 24,
+            "inputConnectorIdx": -1,
+            "inputNodeIdx": 41,
+            "outputNodeIdx": -1
+        },
+        {
+            "OutputConnectorIdx": 6,
+            "gateInputIdx": -1,
+            "gateOutputIdx": 24,
+            "inputConnectorIdx": -1,
+            "inputNodeIdx": 38,
+            "outputNodeIdx": -1
+        },
+        {
+            "OutputConnectorIdx": 7,
+            "gateInputIdx": -1,
+            "gateOutputIdx": 24,
+            "inputConnectorIdx": -1,
+            "inputNodeIdx": 40,
+            "outputNodeIdx": -1
+        },
+        {
+            "OutputConnectorIdx": 8,
+            "gateInputIdx": -1,
+            "gateOutputIdx": 24,
+            "inputConnectorIdx": -1,
+            "inputNodeIdx": 36,
+            "outputNodeIdx": -1
+        },
+        {
+            "OutputConnectorIdx": -1,
+            "gateInputIdx": 24,
+            "gateOutputIdx": -1,
+            "inputConnectorIdx": 0,
+            "inputNodeIdx": -1,
+            "outputNodeIdx": 47
+        },
+        {
+            "OutputConnectorIdx": -1,
+            "gateInputIdx": 24,
+            "gateOutputIdx": -1,
+            "inputConnectorIdx": 1,
+            "inputNodeIdx": -1,
+            "outputNodeIdx": 44
+        },
+        {
+            "OutputConnectorIdx": -1,
+            "gateInputIdx": 24,
+            "gateOutputIdx": -1,
+            "inputConnectorIdx": 2,
+            "inputNodeIdx": -1,
+            "outputNodeIdx": 43
+        },
+        {
+            "OutputConnectorIdx": -1,
+            "gateInputIdx": 24,
+            "gateOutputIdx": -1,
+            "inputConnectorIdx": 3,
+            "inputNodeIdx": -1,
+            "outputNodeIdx": 46
+        },
+        {
+            "OutputConnectorIdx": -1,
+            "gateInputIdx": 24,
+            "gateOutputIdx": -1,
+            "inputConnectorIdx": 4,
+            "inputNodeIdx": -1,
+            "outputNodeIdx": 45
+        }
+    ]
+}

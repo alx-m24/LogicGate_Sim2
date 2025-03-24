@@ -105,13 +105,12 @@ int main() {
 
 			if (ImGui::Button("Import")) {
 				Components components = simulation.getComponents();
-				//load(currentDir + "\\Saves\\4Bit-Adder.json", components, simulation.spacing, simulation.arial);
-				load(currentDir + "\\Saves\\4Bit-Adder.json", components, simulation.spacing, simulation.arial);
+				load(currentDir + "\\Saves\\", "Clean-4Bit-Adder_Test", components, simulation.spacing, simulation.arial);
 			}
 			if (ImGui::Button("Import As Gate")) {
 				Components components = simulation.getComponents();
-				//loadasCustom(currentDir + "\\Saves\\4Bit-Adder.json", components, simulation.spacing, simulation.arial);
-				loadasCustom(currentDir + "\\Saves\\4Bit-Adder.json", components, simulation.spacing, simulation.arial);
+				//loadasCustom(currentDir + "\\Saves\\", "4Bit-Adder", components, simulation.spacing, simulation.arial);
+				loadasCustom(currentDir + "\\Saves\\", "Clean-4Bit-Adder", components, simulation.spacing, simulation.arial);
 			}
 
 			ImGui::End();
@@ -127,8 +126,7 @@ int main() {
 			ImGui::InputText("Name", &name, ImGuiInputTextFlags_::ImGuiInputTextFlags_AutoSelectAll);
 
 			if (ImGui::Button("Create")) {
-				std::cout << name << std::endl;
-				save(currentDir + "\\Saves\\" + name + ".json", simulation.getComponents());
+				save(currentDir + "\\Saves\\", name, simulation.getComponents());
 				name = "Untitled";
 			}
 
