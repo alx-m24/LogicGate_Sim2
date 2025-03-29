@@ -342,7 +342,6 @@ void Simulation::zoom(sf::RenderWindow& window)
 	else thickness = 2;
 #pragma endregion
 
-	//sf::Vector2f viewCenter = sf::Vector2f(0.0, static_cast<float>(window.getSize().y)) + sf::Vector2f(sf::Mouse::getPosition(window));
 	sf::Vector2f viewCenter = mousePos;
 	for (Node* node : nodes) {
 		node->position = (node->position - viewCenter) * oldGridSize / gridSize + viewCenter;
@@ -388,6 +387,12 @@ std::vector<Gate> Simulation::getGates()
 std::string Simulation::analyze()
 {
 	return toString(analyzeCircuit(getComponents()));
+}
+
+std::pair<unsigned int, unsigned int> Simulation::getNodeNum()
+{
+	AnalyzedCiruit circuit = analyzeCircuit(getComponents());
+	return std::pair<unsigned int, unsigned int>(circuit.inputNodesNum, circuit.outputNodesNum);
 }
 
 Components Simulation::getComponents()

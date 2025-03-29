@@ -6,9 +6,36 @@
 #include <imgui_stdlib.h>
 #include "Headers/Simulation.hpp"
 #include "Headers/gui/Style/myStyle.hpp"
+#include "Headers/gui/nfd.h"
+#include <stdio.h>
+#include <stdlib.h>
 
 namespace fs = std::filesystem;
 std::map<sf::Keyboard::Key, bool> keys = std::map<sf::Keyboard::Key, bool>();
+
+static std::string ShowFileDialog(std::string currentDir)
+{
+	std::string path = "";
+	nfdchar_t* outPath = nullptr;
+	nfdresult_t result = NFD_OpenDialog("json;", std::string(currentDir + "\\Saves\\").c_str(), &outPath);
+	if (result == NFD_OKAY)
+	{
+		path = outPath;
+		free(outPath);
+		return path;
+	}
+	else if (result == NFD_CANCEL)
+	{
+		puts("User pressed cancel.");
+	}
+	else
+	{
+		printf("Error: %s\n", NFD_GetError());
+	}
+
+	return "";
+}
+
 
 int main() {
 #pragma region Initialize
@@ -28,12 +55,10 @@ int main() {
 #pragma region Objects
 	Simulation simulation(currentDir + "\\src", 100u);
 	simulation.zoom(window);
-
-	//Components components = simulation.getComponents();
-	//load(currentDir + "\\Saves\\Untitled.json", components, simulation.spacing, simulation.arial);
 #pragma endregion
 
 #pragma region Main loop
+	ImVec4 color = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
 	sf::Clock deltaClock;
 	std::string name = "Untitled";
 	while (window.isOpen()) {
@@ -80,6 +105,9 @@ int main() {
 			addElementcollapsed = ImGui::IsWindowCollapsed();
 
 			if (!addElementcollapsed) {
+				ImGui::Text("");
+
+				ImGui::SameLine();
 				if (ImGui::Button("Node")) {
 					simulation.addNode(window);
 				}
@@ -90,6 +118,21 @@ int main() {
 					ImGui::SameLine();
 					if (ImGui::Button(gate.name.c_str())) {
 						simulation.addGate(gate.name, window);
+					}
+				}
+
+				ImGui::Separator();
+				ImGui::Spacing();
+				ImGui::Spacing();
+
+				std::vector<std::string> customGates = getCustomGets(currentDir + "\\Saves\\");
+
+				for (const std::string& str : customGates) {
+					ImGui::SameLine();
+					if (ImGui::Button(str.c_str())) {
+						Components components = simulation.getComponents();
+						loadasCustom(currentDir + "\\Saves\\", str, components, simulation.spacing, simulation.arial);
+						simulation.getComponents().gates.back()->position = (sf::Vector2f(window.getSize()) / 2.0f) + getRandomOffset(-50.0f, 50.0f);
 					}
 				}
 			}
@@ -104,31 +147,37 @@ int main() {
 
 
 			if (ImGui::Button("Import")) {
-				Components components = simulation.getComponents();
-				load(currentDir + "\\Saves\\", "Clean-4Bit-Adder_Test", components, simulation.spacing, simulation.arial);
-			}
-			if (ImGui::Button("Import As Gate")) {
-				Components components = simulation.getComponents();
-				//loadasCustom(currentDir + "\\Saves\\", "4Bit-Adder", components, simulation.spacing, simulation.arial);
-				loadasCustom(currentDir + "\\Saves\\", "Clean-4Bit-Adder", components, simulation.spacing, simulation.arial);
+				std::string path = ShowFileDialog(currentDir);
+				if (path != "") {
+					Components components = simulation.getComponents();
+					loadFromPath(path, components, simulation.spacing, simulation.arial);
+				}
 			}
 
 			ImGui::End();
 		}
 
 		static bool chipPreviewcollapsed;
-		float chipPreviewHeight = (chipPreviewcollapsed) ? addElementHeight - ImGui::GetFrameHeight() : addElementHeight - 100;
+		float chipPreviewHeight = (chipPreviewcollapsed) ? addElementHeight - ImGui::GetFrameHeight() : addElementHeight - 125;
 		{
-			ImGui::SetNextWindowSize({ 150, 100 });
+			ImGui::SetNextWindowSize({ 150, 125 });
 			ImGui::SetNextWindowPos({ (float)window.getSize().x - 150, chipPreviewHeight});
 			ImGui::Begin("Chip preview", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize);
 
-			ImGui::InputText("Name", &name, ImGuiInputTextFlags_::ImGuiInputTextFlags_AutoSelectAll);
+			ImGui::InputText("Name", &name, ImGuiInputTextFlags_::ImGuiInputTextFlags_AutoSelectAll | ImGuiInputTextFlags_::ImGuiInputTextFlags_CharsNoBlank);
+
+			auto nodeNum = simulation.getNodeNum();
+
+			ImGui::Text("Input Num: %d", nodeNum.first);
+			ImGui::Text("Output Num: %d", nodeNum.second);
 
 			if (ImGui::Button("Create")) {
-				save(currentDir + "\\Saves\\", name, simulation.getComponents());
+				save(currentDir + "\\Saves\\", name, simulation.getComponents(), color);
 				name = "Untitled";
+				color = { 1.0f, 1.0f, 1.0f, 1.0f };
 			}
+
+			ImGui::ColorEdit3("Color", &color.x);
 
 			chipPreviewcollapsed = ImGui::IsWindowCollapsed();
 

@@ -183,6 +183,39 @@ public:
 	}
 };
 
+class HexDisplay: public Gate {
+public:
+	HexDisplay(float spacing, sf::Font& font) : Gate("HEX-DISPLAY", sf::Color(128, 128, 128), font) {
+		inputs.resize(4);
+		outputs.resize(4);
+
+		resize(spacing);
+	};
+
+public:
+	virtual void update() {
+		for (int i = 0; i < 4; ++i) {
+			outputs[i].state = inputs[i].state;
+		}
+	}
+
+	virtual void resize(float spacing) {
+		spacing *= 1.5f;
+
+		rect.setSize(sf::Vector2f(spacing, spacing / 2.0f));
+		rect.setOrigin(rect.getSize() / 2.0f);
+		rect.setOutlineThickness(2.0f);
+		rect.setOutlineColor(sf::Color::Black);
+
+		inputs[0].localPosition.x = -rect.getSize().y;
+		inputs[1].localPosition.x = -rect.getSize().y;
+		outputs[0].localPosition.x = rect.getSize().y;
+
+		inputs[0].localPosition.y = -rect.getSize().y / 2.0f + spacing / 8.5f;
+		inputs[1].localPosition.y = rect.getSize().y / 2.0f - spacing / 8.5f;
+	}
+};
+
 class Custom : public Gate {
 public:
 	Custom(int inputNum, int outputNum, float spacing, std::string name, sf::Color color, sf::Font& font) : Gate(name, color, font) {

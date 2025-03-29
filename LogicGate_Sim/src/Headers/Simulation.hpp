@@ -75,6 +75,7 @@ public:
 	void addNode(sf::RenderWindow& window);
 	std::vector<Gate> getGates();
 	std::string analyze();
+	std::pair<unsigned int, unsigned int> getNodeNum();
 	Components getComponents();
 };
 

@@ -54,6 +54,19 @@ std::pair<std::vector<unsigned int>, std::vector<unsigned int>> analyzeNodes(std
     return analyzedNodes;
 }
 
+std::vector<std::string> getCustomGets(std::string path)
+{
+    std::vector<std::string> gates;
+
+    for (const auto& entry : fs::directory_iterator(path)) {
+        if (entry.is_regular_file() && entry.path().extension() == ".json") {
+            gates.push_back(entry.path().stem().string());
+        }
+    }
+
+    return gates;
+}
+
 AnalyzedCiruit analyzeCircuit(const Components& components)
 {
     AnalyzedCiruit circuit;
@@ -101,68 +114,7 @@ std::string toString(const AnalyzedCiruit& circuit)
 
 void load(std::string path, std::string name, Components& components, float spacing, sf::Font& arial)
 {
-    json data;
-    std::ifstream file(path + name + ".json");
-    if (file.is_open()) {
-        file >> data;
-        file.close();
-    }
-    else {
-        std::cout << "Couldn't open: " << path + name + ".json" << std::endl;
-    }
-
-    unsigned int nodeIdxOffset = components.nodes.size();
-    unsigned int gateIdxOffset = components.gates.size();
-    unsigned int WireIdxOffset = components.wires.size();
-
-    for (json gate : data["Gates"]) {
-        std::string name = gate["Name"];
-
-        if (name == "NOT") components.gates.emplace_back(new NotGate(spacing, arial));
-        else if (name == "AND") components.gates.emplace_back(new AndGate(spacing, arial));
-        else if (name == "OR") components.gates.emplace_back(new OrGate(spacing, arial));
-        else if (name == "XOR") components.gates.emplace_back(new XOrGate(spacing, arial));
-        else {
-            loadasCustom(path, name, components, spacing, arial);
-        }
-
-        components.gates.back()->position = {gate["Position"][0], gate["Position"][1]};
-    }
-    for (json node : data["Nodes"]) {
-        components.nodes.emplace_back(new Node());
-        components.nodes.back()->position  = {node["Position"][0], node["Position"][1]};
-        components.nodes.back()->state = node["State"];
-    }
-    for (json wire : data["Wires"]) {
-        sf::Vector2f* p1 = nullptr;
-        sf::Vector2f* p2 = nullptr;
-        bool* input = nullptr;
-        bool* output = nullptr;
-
-        if (wire["inputNodeIdx"] != -1) {
-            p1 = &components.nodes[nodeIdxOffset + wire["inputNodeIdx"]]->position;
-            input = &components.nodes[nodeIdxOffset + wire["inputNodeIdx"]]->state;
-        }
-        else if (wire["gateInputIdx"] != -1) {
-            Connector& connector = components.gates[wire["gateInputIdx"] + gateIdxOffset]->outputs[wire["inputConnectorIdx"]];
-            p1 = &connector.gloabalPosition;
-            input = &connector.state;
-        }
-
-        if (wire["outputNodeIdx"] != -1) {
-            p2 = &components.nodes[nodeIdxOffset + wire["outputNodeIdx"]]->position;
-            output = &components.nodes[nodeIdxOffset + wire["outputNodeIdx"]]->state;
-        }
-        else if (wire["gateOutputIdx"] != - 1) {
-            Connector& connector = components.gates[wire["gateOutputIdx"] + gateIdxOffset]->inputs[wire["OutputConnectorIdx"]];
-            p2 = &connector.gloabalPosition;
-            output = &connector.state;
-        }
-
-        components.wires.emplace_back(Wire(p1, p2));
-        components.wires.back().input = input;
-        components.wires.back().output = output;
-    }
+    loadFromPath(path + name = ".json", components, spacing, arial);
 }
 
 void loadasCustom(std::string path, std::string name, Components& components, float spacing, sf::Font& arial)
@@ -239,7 +191,7 @@ void loadasCustom(std::string path, std::string name, Components& components, fl
         components.wires.back().shouldDraw = false;
     }
 
-    components.gates.push_back(new Custom(data["InputNodeNum"], data["OutputNodeNum"], spacing, data["Name"], sf::Color::Magenta, arial));
+    components.gates.push_back(new Custom(data["InputNodeNum"], data["OutputNodeNum"], spacing, data["Name"], sf::Color(data["Color"][0], data["Color"][1], data["Color"][2]), arial));
     components.gates.back()->position = { 500, 500 };
 
     int connectorIdx = 0;
@@ -257,7 +209,73 @@ void loadasCustom(std::string path, std::string name, Components& components, fl
     }
 }
 
-void save(std::string path, std::string name, const Components& components)
+void loadFromPath(std::string path, Components& components, float spacing, sf::Font& arial)
+{
+    json data;
+    std::ifstream file(path);
+    if (file.is_open()) {
+        file >> data;
+        file.close();
+    }
+    else {
+        std::cout << "Couldn't open: " << path << std::endl;
+    }
+
+    unsigned int nodeIdxOffset = components.nodes.size();
+    unsigned int gateIdxOffset = components.gates.size();
+    unsigned int WireIdxOffset = components.wires.size();
+
+    for (json gate : data["Gates"]) {
+        std::string name = gate["Name"];
+
+        if (name == "NOT") components.gates.emplace_back(new NotGate(spacing, arial));
+        else if (name == "AND") components.gates.emplace_back(new AndGate(spacing, arial));
+        else if (name == "OR") components.gates.emplace_back(new OrGate(spacing, arial));
+        else if (name == "XOR") components.gates.emplace_back(new XOrGate(spacing, arial));
+        else {
+            loadasCustom(path, name, components, spacing, arial);
+        }
+
+        components.gates.back()->position = { gate["Position"][0], gate["Position"][1] };
+    }
+    for (json node : data["Nodes"]) {
+        components.nodes.emplace_back(new Node());
+        components.nodes.back()->position = { node["Position"][0], node["Position"][1] };
+        components.nodes.back()->state = node["State"];
+    }
+    for (json wire : data["Wires"]) {
+        sf::Vector2f* p1 = nullptr;
+        sf::Vector2f* p2 = nullptr;
+        bool* input = nullptr;
+        bool* output = nullptr;
+
+        if (wire["inputNodeIdx"] != -1) {
+            p1 = &components.nodes[nodeIdxOffset + wire["inputNodeIdx"]]->position;
+            input = &components.nodes[nodeIdxOffset + wire["inputNodeIdx"]]->state;
+        }
+        else if (wire["gateInputIdx"] != -1) {
+            Connector& connector = components.gates[wire["gateInputIdx"] + gateIdxOffset]->outputs[wire["inputConnectorIdx"]];
+            p1 = &connector.gloabalPosition;
+            input = &connector.state;
+        }
+
+        if (wire["outputNodeIdx"] != -1) {
+            p2 = &components.nodes[nodeIdxOffset + wire["outputNodeIdx"]]->position;
+            output = &components.nodes[nodeIdxOffset + wire["outputNodeIdx"]]->state;
+        }
+        else if (wire["gateOutputIdx"] != -1) {
+            Connector& connector = components.gates[wire["gateOutputIdx"] + gateIdxOffset]->inputs[wire["OutputConnectorIdx"]];
+            p2 = &connector.gloabalPosition;
+            output = &connector.state;
+        }
+
+        components.wires.emplace_back(Wire(p1, p2));
+        components.wires.back().input = input;
+        components.wires.back().output = output;
+    }
+}
+
+void save(std::string path, std::string name, const Components& components, ImVec4 color)
 {
     AnalyzedCiruit circuit = analyzeCircuit(components);
 
@@ -270,7 +288,8 @@ void save(std::string path, std::string name, const Components& components)
         {"OutputNodeNum", circuit.outputNodesNum},
         {"InputNode", circuit.analyzedNodes.first},
         {"OutputNode", circuit.analyzedNodes.second},
-        {"Name", name}
+        {"Name", name},
+        {"Color", {color.x * 255.0f, color.y * 255.0f, color.z * 255.0f}}
     };
 
     json jsonNodes = json::array();
