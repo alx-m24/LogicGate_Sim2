@@ -240,6 +240,24 @@ public:
 		}
 	}
 	virtual void resize(float spacing) {
+		if (inputs.size() == 2 && outputs.size() <= 2) {
+			spacing *= 1.5f;
+
+			rect.setSize(sf::Vector2f(spacing, spacing / 2.0f));
+			rect.setOrigin(rect.getSize() / 2.0f);
+			rect.setOutlineThickness(2.0f);
+			rect.setOutlineColor(sf::Color::Black);
+
+			inputs[0].localPosition.x = -rect.getSize().y;
+			inputs[1].localPosition.x = -rect.getSize().y;
+			outputs[0].localPosition.x = rect.getSize().y;
+
+			inputs[0].localPosition.y = -rect.getSize().y / 2.0f + spacing / 8.5f;
+			inputs[1].localPosition.y = rect.getSize().y / 2.0f - spacing / 8.5f;
+
+			return;
+		}
+
 		// Determine the maximum count between inputs and outputs
 		size_t maxConnections = std::max(inputs.size(), outputs.size());
 		float minHeight = spacing / 2.0f;  // Minimum height for small gates

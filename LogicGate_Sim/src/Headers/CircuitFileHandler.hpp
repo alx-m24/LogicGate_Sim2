@@ -4,8 +4,8 @@
 #include <fstream>
 #include <string>
 #include <vector>
-#include <nlohmann/json.hpp>
-#include <imgui.h>
+#include "nlohmann/json.hpp"
+#include "imgui.h"
 #include "Node.hpp"
 #include "Gate.hpp"
 #include "Wire.hpp"
@@ -31,7 +31,7 @@ struct AnalyzedCiruit {
 };
 
 std::pair<std::vector<unsigned int>, std::vector<unsigned int>> analyzeNodes(std::vector<Node*>& nodes, std::vector<Wire>& wires, std::vector<Gate*>& gates);
-std::vector<std::string> getCustomGets(std::string path);
+std::vector<std::string> getCustomGates(std::string path);
 AnalyzedCiruit analyzeCircuit(const Components& components);
 std::string toString(const AnalyzedCiruit& circuit);
 void load(std::string path, std::string name, Components& components, float spacing, sf::Font& arial);

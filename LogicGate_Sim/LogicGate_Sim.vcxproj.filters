@@ -47,9 +47,6 @@
     <None Include="src\Shaders\mainShader.frag">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="src\Headers\gui\nfd_cocoa.m">
-      <Filter>nfd</Filter>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Headers\Simulation.hpp">

@@ -26,7 +26,7 @@ static std::string ShowFileDialog(std::string currentDir)
 	}
 	else if (result == NFD_CANCEL)
 	{
-		puts("User pressed cancel.");
+		//puts("User pressed cancel.");
 	}
 	else
 	{
@@ -36,16 +36,31 @@ static std::string ShowFileDialog(std::string currentDir)
 	return "";
 }
 
-
 int main() {
 #pragma region Initialize
+	std::string currentDir = fs::current_path().string();
+
 	sf::ContextSettings settings;
 	settings.antialiasingLevel = 8;
 
 	sf::RenderWindow window(sf::VideoMode(1000, 600), "LogicGate Simulator", sf::Style::Default, settings);
+	sf::Image icon;
+	icon.loadFromFile(currentDir + "\\Logic Gate.png");
+	window.setIcon(icon.getSize().x, icon.getSize().y, icon.getPixelsPtr());
 	window.setVerticalSyncEnabled(true);
 
-	std::string currentDir = fs::current_path().string();
+	char* appDataPath = nullptr;
+	size_t len;
+	errno_t err = _dupenv_s(&appDataPath, &len, "APPDATA"); // Get %APPDATA% path
+
+	if (err || appDataPath == nullptr) {
+		std::cerr << "Error retrieving APPDATA path!\n";
+	}
+
+
+	std::string path(appDataPath);
+	path += "\\LogicGateSim";
+	free(appDataPath);
 
 	// Initialize ImGui-SFML
 	ImGui::SFML::Init(window);
@@ -125,13 +140,13 @@ int main() {
 				ImGui::Spacing();
 				ImGui::Spacing();
 
-				std::vector<std::string> customGates = getCustomGets(currentDir + "\\Saves\\");
+				std::vector<std::string> customGates = getCustomGates(path + "\\Saves\\");
 
 				for (const std::string& str : customGates) {
 					ImGui::SameLine();
 					if (ImGui::Button(str.c_str())) {
 						Components components = simulation.getComponents();
-						loadasCustom(currentDir + "\\Saves\\", str, components, simulation.spacing, simulation.arial);
+						loadasCustom(path + "\\Saves\\", str, components, simulation.spacing, simulation.arial);
 						simulation.getComponents().gates.back()->position = (sf::Vector2f(window.getSize()) / 2.0f) + getRandomOffset(-50.0f, 50.0f);
 					}
 				}
@@ -147,10 +162,10 @@ int main() {
 
 
 			if (ImGui::Button("Import")) {
-				std::string path = ShowFileDialog(currentDir);
-				if (path != "") {
+				std::string gate = ShowFileDialog(path);
+				if (gate != "") {
 					Components components = simulation.getComponents();
-					loadFromPath(path, components, simulation.spacing, simulation.arial);
+					loadFromPath(gate, components, simulation.spacing, simulation.arial);
 				}
 			}
 
@@ -158,10 +173,10 @@ int main() {
 		}
 
 		static bool chipPreviewcollapsed;
-		float chipPreviewHeight = (chipPreviewcollapsed) ? addElementHeight - ImGui::GetFrameHeight() : addElementHeight - 125;
+		float chipPreviewHeight = (chipPreviewcollapsed) ? addElementHeight - ImGui::GetFrameHeight() : addElementHeight - 150;
 		{
-			ImGui::SetNextWindowSize({ 150, 125 });
-			ImGui::SetNextWindowPos({ (float)window.getSize().x - 150, chipPreviewHeight});
+			ImGui::SetNextWindowSize({ 175, 150 });
+			ImGui::SetNextWindowPos({ (float)window.getSize().x - 175, chipPreviewHeight});
 			ImGui::Begin("Chip preview", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize);
 
 			ImGui::InputText("Name", &name, ImGuiInputTextFlags_::ImGuiInputTextFlags_AutoSelectAll | ImGuiInputTextFlags_::ImGuiInputTextFlags_CharsNoBlank);
@@ -172,7 +187,7 @@ int main() {
 			ImGui::Text("Output Num: %d", nodeNum.second);
 
 			if (ImGui::Button("Create")) {
-				save(currentDir + "\\Saves\\", name, simulation.getComponents(), color);
+				save(path + "\\Saves\\", name, simulation.getComponents(), color);
 				name = "Untitled";
 				color = { 1.0f, 1.0f, 1.0f, 1.0f };
 			}
