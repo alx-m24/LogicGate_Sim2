@@ -265,7 +265,10 @@ void Simulation::update(sf::RenderWindow& window)
 	else {
 		for (unsigned int i = 0; i < std::min(static_cast<unsigned int>(gates.size() + 1), maxtickRate); ++i) {
 			for (Wire& wire : wires) wire.update();
-			for (Gate* gate : gates) gate->update();
+			for (Gate* gate : gates) {
+				bool shouldUpdate = static_cast<float>(std::rand()) / (static_cast<float>(RAND_MAX) / (1.0f)) > 0.25f;
+				if (shouldUpdate) gate->update();
+			}
 		}
 	}
 #pragma endregion
