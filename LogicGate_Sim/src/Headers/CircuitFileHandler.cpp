@@ -112,6 +112,13 @@ std::string toString(const AnalyzedCiruit& circuit)
     return text;
 }
 
+void reorderNodes(std::vector<Node*>& nodes)
+{
+    std::stable_partition(nodes.begin(), nodes.end(), [](Node* node) {
+        return !node->shouldDraw;
+        });
+}
+
 void load(std::string path, std::string name, Components& components, float spacing, sf::Font& arial)
 {
     loadFromPath(path + name + ".json", components, spacing, arial);
@@ -281,6 +288,8 @@ void loadFromPath(std::string path, Components& components, float spacing, sf::F
 
 void save(std::string path, std::string name, const Components& components, ImVec4 color)
 {
+    reorderNodes(components.nodes);
+
     AnalyzedCiruit circuit = analyzeCircuit(components);
 
     json data = {

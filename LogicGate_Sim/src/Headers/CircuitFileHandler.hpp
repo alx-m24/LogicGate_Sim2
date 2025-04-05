@@ -31,10 +31,11 @@ struct AnalyzedCiruit {
 };
 
 std::pair<std::vector<unsigned int>, std::vector<unsigned int>> analyzeNodes(std::vector<Node*>& nodes, std::vector<Wire>& wires, std::vector<Gate*>& gates);
+void loadasCustom(std::string path, std::string name, Components& components, float spacing, sf::Font& arial);
+void load(std::string path, std::string name, Components& components, float spacing, sf::Font& arial);
+void loadFromPath(std::string path, Components& components, float spacing, sf::Font& arial);
+void save(std::string path, std::string name, const Components& components, ImVec4 color);
 std::vector<std::string> getCustomGates(std::string path);
 AnalyzedCiruit analyzeCircuit(const Components& components);
 std::string toString(const AnalyzedCiruit& circuit);
-void load(std::string path, std::string name, Components& components, float spacing, sf::Font& arial);
-void loadasCustom(std::string path, std::string name, Components& components, float spacing, sf::Font& arial);
-void loadFromPath(std::string path, Components& components, float spacing, sf::Font& arial);
-void save(std::string path, std::string name, const Components& components, ImVec4 color);
+void reorderNodes(std::vector<Node*>& nodes);
