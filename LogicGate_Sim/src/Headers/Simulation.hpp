@@ -51,6 +51,7 @@ private:
 	const unsigned int maxtickRate;
 	bool slowed = false;
 	bool addingWire = false;
+	bool deletedLastFrame = false;
 	bool addedNodeLastFrame = false;
 	bool addedGateLastFrame = false;
 	bool movingObject = false;
@@ -68,14 +69,19 @@ private:
 	std::vector<Wire> wires;
 
 public:
+	void addGate(std::string gate, sf::RenderWindow& window);
+	std::pair<unsigned int, unsigned int> getNodeNum();
+	void addNode(sf::RenderWindow& window);
 	void update(sf::RenderWindow& window);
 	void draw(sf::RenderWindow& window);
 	void zoom(sf::RenderWindow& window);
-	void addGate(std::string gate, sf::RenderWindow& window);
-	void addNode(sf::RenderWindow& window);
 	std::vector<Gate> getGates();
-	std::string analyze();
-	std::pair<unsigned int, unsigned int> getNodeNum();
 	Components getComponents();
+	void deleteNode(int idx);
+	void deleteGate(int idx);
+	void deleteWire(int idx);
+	std::string analyze();
+	void deleteElement();
+	void deleteAll();
 };
 

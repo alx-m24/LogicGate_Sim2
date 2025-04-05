@@ -169,6 +169,14 @@ int main() {
 				}
 			}
 
+			ImGui::SameLine();
+
+			if (ImGui::Button("Clear")) {
+				simulation.deleteAll();
+			}
+
+			ImGui::Text("FPS: %d", static_cast<int>(round(ImGui::GetIO().Framerate)));
+
 			ImGui::End();
 		}
 

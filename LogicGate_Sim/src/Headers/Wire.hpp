@@ -19,4 +19,5 @@ public:
 public:
 	void update();
 	bool getState() const;
+	bool contains(sf::Vector2f point) const;
 };

@@ -26,9 +26,7 @@ Simulation::~Simulation()
 void Simulation::update(sf::RenderWindow& window)
 {
 #pragma region KeyBinds
-	if (ADD_GATE && !addedGateLastFrame) {
-	}
-	else if (ADD_NODE && !addedNodeLastFrame) {
+	if (ADD_NODE && !addedNodeLastFrame) {
 		nodes.emplace_back(new Node());
 		nodes.back()->state = false;
 		nodes.back()->position = (sf::Vector2f(window.getSize()) / 2.0f) + getRandomOffset(-50.0f, 50.0f);
@@ -40,6 +38,9 @@ void Simulation::update(sf::RenderWindow& window)
 		while (delay.getElapsedTime().asSeconds() < 0.75f);
 	}
 
+	deleteElement();
+
+	deletedLastFrame = DELETE;
 	addedNodeLastFrame = ADD_NODE;
 	addedGateLastFrame = ADD_GATE;
 #pragma endregion
@@ -134,8 +135,7 @@ void Simulation::update(sf::RenderWindow& window)
 
 					wires.emplace_back(Wire(&(nodes[i]->position), &mousePos));
 
-					void* tempPtr = &(*nodes[i]); // pointer to pointe: ik it fcks with your brain
-					wires.back().input = static_cast<bool*>(tempPtr);
+					wires.back().input = &nodes[i]->state;
 					break;
 				}
 			}
@@ -260,7 +260,10 @@ void Simulation::update(sf::RenderWindow& window)
 #pragma region Physics frames
 	if (slowed) {
 		for (Wire& wire : wires) wire.update();
-		for (Gate* gate : gates) gate->update();
+		for (Gate* gate : gates) {
+			bool shouldUpdate = static_cast<float>(std::rand()) / (static_cast<float>(RAND_MAX) / (1.0f)) > 0.25f;
+			if (shouldUpdate) gate->update();
+		}
 	}
 	else {
 		for (unsigned int i = 0; i < std::min(static_cast<unsigned int>(gates.size() + 1), maxtickRate); ++i) {
@@ -392,6 +395,55 @@ std::string Simulation::analyze()
 	return toString(analyzeCircuit(getComponents()));
 }
 
+void Simulation::deleteElement()
+{
+	if (DELETE) {
+		for (int i = nodes.size() - 1; i >= 0; --i) {
+			if (nodes[i]->contains(mousePos) && nodes[i]->shouldDraw) {
+				nodes[i]->selected = true;
+				break;
+			}
+		}
+		for (int i = gates.size() - 1; i >= 0; --i) {
+			if (gates[i]->contains(mousePos) && gates[i]->shouldDraw) {
+				gates[i]->isSelected = true;
+				break;
+			}
+		}
+	}
+	// Just released the delete btn
+	else if (deletedLastFrame) {
+		bool deleted = false;
+
+		for (int i = nodes.size() - 1; i >= 0; --i) {
+			if (nodes[i]->contains(mousePos) && nodes[i]->shouldDraw) {
+				deleteNode(i);
+				deleted = true;
+				break;
+			}
+		}
+
+		if (deleted) return;
+
+		for (int i = gates.size() - 1; i >= 0; --i) {
+			if (gates[i]->contains(mousePos) && gates[i]->shouldDraw) {
+				deleteGate(i);
+				deleted = true;
+				break;
+			}
+		}
+
+		if (deleted) return;
+
+		for (int i = wires.size() - 1; i >= 0; --i) {
+			if (wires[i].contains(mousePos) && wires[i].shouldDraw) {
+				deleteWire(i);
+				break;
+			}
+		}
+	}
+}
+
 std::pair<unsigned int, unsigned int> Simulation::getNodeNum()
 {
 	AnalyzedCiruit circuit = analyzeCircuit(getComponents());
@@ -401,4 +453,68 @@ std::pair<unsigned int, unsigned int> Simulation::getNodeNum()
 Components Simulation::getComponents()
 {
 	return Components{ nodes, gates, wires };
+}
+
+void Simulation::deleteNode(int idx)
+{
+	std::vector<int> wiresToDelete;
+	for (int i = 0; i < wires.size(); ++i) {
+		if (!wires[i].shouldDraw) continue;
+
+		if (wires[i].input == &nodes[idx]->state || wires[i].output == &nodes[idx]->state) {
+			wiresToDelete.push_back(i);
+		}
+	}
+
+	delete nodes[idx];
+	nodes.erase(nodes.begin() + idx);
+
+	// Sorting in order to delete wires from back to front
+	std::sort(wiresToDelete.begin(), wiresToDelete.end(), std::greater<int>());
+	for (const int& i : wiresToDelete) {
+		wires.erase(wires.begin() + i);
+	}
+}
+
+void Simulation::deleteGate(int idx)
+{
+	std::vector<int> wiresToDelete;
+	for (int i = 0; i < wires.size(); ++i) {
+		if (!wires[i].shouldDraw) continue;
+
+		for (const Connector& input : gates[idx]->inputs) {
+			if (wires[i].input == &input.state || wires[i].output == &input.state) wiresToDelete.push_back(i);
+		}
+		for (const Connector& output : gates[idx]->outputs) {
+			if (wires[i].input == &output.state || wires[i].output == &output.state) wiresToDelete.push_back(i);
+		}
+	}
+
+	delete gates[idx];
+	gates.erase(gates.begin() + idx);
+
+	// Sorting in order to delete wires from back to front
+	std::sort(wiresToDelete.begin(), wiresToDelete.end(), std::greater<int>());
+	for (const int& i : wiresToDelete) {
+		wires.erase(wires.begin() + i);
+	}
+}
+
+void Simulation::deleteWire(int idx)
+{
+	wires.erase(wires.begin() + idx);
+}
+
+void Simulation::deleteAll()
+{
+	for (Node* node : nodes) {
+		delete node;
+	}
+	for (Gate* gate : gates) {
+		delete gate;
+	}
+
+	nodes.clear();
+	gates.clear();
+	wires.clear();
 }
